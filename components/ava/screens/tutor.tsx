@@ -102,7 +102,7 @@ export default function TutorScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -199,7 +199,7 @@ export default function TutorScreen() {
           msg.role === 'user' ? (
             <div
               key={i}
-              className="ml-auto max-w-[80%] text-[12px] px-3.5 py-2.5 rounded-[12px_12px_4px_12px]"
+              className="ml-auto max-w-[80%] text-[12px] px-3.5 py-2.5 rounded-[12px_12px_4px_12px] whitespace-pre-wrap"
               style={{ background: '#E1F5EE', color: '#085041' }}
             >
               {msg.text}
@@ -242,10 +242,10 @@ export default function TutorScreen() {
       </div>
 
       {/* Input */}
-      <div className="flex gap-2 mb-2">
-        <input
+      <div className="flex gap-2 mb-2 items-end">
+        <textarea
           ref={inputRef}
-          type="text"
+          rows={1}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
@@ -253,7 +253,13 @@ export default function TutorScreen() {
           }}
           placeholder="Digite sua dúvida sobre o ENEM..."
           disabled={loading}
-          className="flex-1 text-[12px] px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-[#1D9E75] disabled:opacity-50"
+          className="flex-1 text-[12px] px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-[#1D9E75] disabled:opacity-50 resize-none overflow-y-auto"
+          style={{ minHeight: '38px', maxHeight: '120px' }}
+          onInput={(e) => {
+            const target = e.target as HTMLTextAreaElement;
+            target.style.height = '38px';
+            target.style.height = `${Math.min(target.scrollHeight, 120)}px`;
+          }}
         />
         <button
           onClick={() => send()}

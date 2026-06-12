@@ -103,7 +103,7 @@ const MessageBubble = memo(function MessageBubble({
             : 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-900 dark:text-indigo-200 border border-indigo-100/50 dark:border-indigo-800/50 rounded-tl-sm',
       )}
     >
-      <span className="break-words">
+      <span className="break-words whitespace-pre-wrap">
         {parts.map((part: MessagePart, i: number) => {
           if (part.type === 'text' || part.type === 'step-start') {
             const text = part.type === 'text' ? part.text : '';
