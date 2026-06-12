@@ -20,6 +20,7 @@ interface ChatAreaProps {
   onWidthChange?: (width: number) => void;
   collapsed?: boolean;
   onCollapseChange?: (collapsed: boolean) => void;
+  sigmaMode?: boolean;
   activeBubbleId?: string | null;
   onActiveBubble?: (messageId: string | null) => void;
   onLiveSpeech?: (text: string | null, agentId?: string | null) => void;
@@ -82,6 +83,7 @@ export const ChatArea = forwardRef<ChatAreaRef, ChatAreaProps>(
       onSegmentSealed,
       shouldHoldAfterReveal,
       currentSceneId,
+      sigmaMode,
     },
     ref,
   ) => {
@@ -253,9 +255,17 @@ export const ChatArea = forwardRef<ChatAreaRef, ChatAreaProps>(
         {!collapsed && (
           <div
             onMouseDown={handleDragStart}
-            className="absolute left-0 top-0 bottom-0 w-1.5 cursor-col-resize z-50 group hover:bg-purple-400/30 dark:hover:bg-purple-600/30 active:bg-purple-500/40 dark:active:bg-purple-500/40 transition-colors"
+            className={cn(
+              'absolute left-0 top-0 bottom-0 w-1.5 cursor-col-resize z-50 group transition-colors',
+              sigmaMode
+                ? 'hover:bg-[#1D9E75]/20 active:bg-[#1D9E75]/30'
+                : 'hover:bg-purple-400/30 dark:hover:bg-purple-600/30 active:bg-purple-500/40 dark:active:bg-purple-500/40',
+            )}
           >
-            <div className="absolute left-0.5 top-1/2 -translate-y-1/2 w-0.5 h-8 rounded-full bg-gray-300 dark:bg-gray-600 group-hover:bg-purple-400 dark:group-hover:bg-purple-500 transition-colors" />
+            <div className={cn(
+              'absolute left-0.5 top-1/2 -translate-y-1/2 w-0.5 h-8 rounded-full bg-gray-300 dark:bg-gray-600 transition-colors',
+              sigmaMode ? 'group-hover:bg-[#1D9E75]' : 'group-hover:bg-purple-400 dark:group-hover:bg-purple-500',
+            )} />
           </div>
         )}
 
@@ -324,6 +334,7 @@ export const ChatArea = forwardRef<ChatAreaRef, ChatAreaProps>(
                       activeBubbleId={activeBubbleId}
                       onToggleExpand={toggleSessionExpand}
                       onEndSession={handleEndSession}
+                      sigmaMode={sigmaMode}
                     />
                     <div ref={bottomRef} />
                   </>

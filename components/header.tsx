@@ -11,6 +11,8 @@ import {
   FileDown,
   Package,
   Archive,
+  ChevronRight,
+  User,
 } from 'lucide-react';
 import { useI18n } from '@/lib/hooks/use-i18n';
 import { useTheme } from '@/lib/hooks/use-theme';
@@ -26,11 +28,25 @@ import { useExportClassroom } from '@/lib/export/use-export-classroom';
 
 interface HeaderProps {
   readonly currentSceneTitle: string;
+  readonly backUrl?: string;
+  /** When true, renders the compact SigmaEdu-themed topbar (h-12 / 48 px) */
+  readonly sigmaMode?: boolean;
+  /** Subject name shown in the breadcrumb when sigmaMode is true */
+  readonly sigmaSubject?: string;
+  /** Student label shown on the right when sigmaMode is true */
+  readonly sigmaUser?: string;
 }
 
-export function Header({ currentSceneTitle }: HeaderProps) {
+export function Header({
+  currentSceneTitle,
+  backUrl = '/',
+  sigmaMode = false,
+  sigmaSubject,
+  sigmaUser = 'Davi · 6º ano',
+}: HeaderProps) {
   const { t } = useI18n();
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
   const router = useRouter();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [themeOpen, setThemeOpen] = useState(false);
@@ -53,7 +69,6 @@ export function Header({ currentSceneTitle }: HeaderProps) {
 
   const themeRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
   const handleClickOutside = useCallback(
     (e: MouseEvent) => {
       if (themeOpen && themeRef.current && !themeRef.current.contains(e.target as Node)) {
@@ -73,12 +88,137 @@ export function Header({ currentSceneTitle }: HeaderProps) {
     }
   }, [themeOpen, exportMenuOpen, handleClickOutside]);
 
+  // ── Sigma (SigmaEdu-themed) header ────────────────────────────────────────
+  if (sigmaMode) {
+    return (
+      <>
+        <header
+          className="h-12 px-4 flex items-center justify-between z-10 flex-shrink-0 bg-white dark:bg-gray-900"
+          style={{ borderBottom: `0.5px solid ${isDark ? '#374151' : '#e5e7eb'}` }}
+        >
+          {/* Brand + back navigation */}
+          <button
+            onClick={() => router.push(backUrl)}
+            className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-gray-100 hover:opacity-80 transition-opacity"
+            title={t('generation.backToHome')}
+          >
+            <div
+              className="w-[26px] h-[26px] rounded-[7px] flex items-center justify-center text-white text-xs font-medium flex-shrink-0"
+              style={{ background: '#1D9E75' }}
+            >
+              S
+            </div>
+            SigmaEdu
+          </button>
+
+          {/* Breadcrumb */}
+          <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5 min-w-0">
+            {sigmaSubject && (
+              <>
+                <span className="shrink-0">{sigmaSubject}</span>
+                <ChevronRight className="w-3 h-3 text-gray-400 dark:text-gray-600 shrink-0" />
+              </>
+            )}
+            <span
+              className="font-medium text-gray-900 dark:text-gray-100 truncate max-w-[280px]"
+              suppressHydrationWarning
+            >
+              {currentSceneTitle || t('common.loading')}
+            </span>
+          </div>
+
+          {/* Right: actions + user */}
+          <div className="flex items-center gap-3">
+            {/* Theme toggle */}
+            <button
+              onClick={() => setTheme(isDark ? 'light' : 'dark')}
+              className="p-1.5 rounded-md text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+              title={isDark ? 'Modo claro' : 'Modo escuro'}
+            >
+              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+
+            {/* Settings */}
+            <button
+              onClick={() => setSettingsOpen(true)}
+              className="p-1.5 rounded-md text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+
+            {/* Export */}
+            <div className="relative" ref={exportRef}>
+              <button
+                onClick={() => {
+                  if (canExport && !isExporting && !isExportingZip) setExportMenuOpen(!exportMenuOpen);
+                }}
+                disabled={!canExport || isExporting || isExportingZip}
+                className={cn(
+                  'p-1.5 rounded-md transition-colors',
+                  canExport && !isExporting && !isExportingZip
+                    ? 'text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300'
+                    : 'text-gray-300 dark:text-gray-600 cursor-not-allowed opacity-50',
+                )}
+              >
+                {isExporting || isExportingZip ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4" />
+                )}
+              </button>
+              {exportMenuOpen && (
+                <div
+                  className="absolute top-full mt-2 right-0 bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden z-50 min-w-[200px]"
+                  style={{ border: `0.5px solid ${isDark ? '#374151' : '#e5e7eb'}` }}
+                >
+                  <button
+                    onClick={() => { setExportMenuOpen(false); exportPPTX(); }}
+                    className="w-full px-4 py-2.5 text-left text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+                  >
+                    <FileDown className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0" />
+                    {t('export.pptx')}
+                  </button>
+                  <button
+                    onClick={() => { setExportMenuOpen(false); exportResourcePack(); }}
+                    className="w-full px-4 py-2.5 text-left text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+                  >
+                    <Package className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0" />
+                    {t('export.resourcePack')}
+                  </button>
+                  <button
+                    onClick={() => { setExportMenuOpen(false); exportClassroomZip(); }}
+                    disabled={isExportingZip}
+                    className="w-full px-4 py-2.5 text-left text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+                  >
+                    <Archive className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0" />
+                    {t('export.classroomZip')}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Divider */}
+            <div className="w-px h-4 bg-gray-200 dark:bg-gray-700" />
+
+            {/* User info */}
+            <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+              <User className="w-3.5 h-3.5" />
+              {sigmaUser}
+            </div>
+          </div>
+        </header>
+        <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
+      </>
+    );
+  }
+
+  // ── Default OpenMAIC header ────────────────────────────────────────────────
   return (
     <>
       <header className="h-20 px-8 flex items-center justify-between z-10 bg-transparent gap-4">
         <div className="flex items-center gap-3 min-w-0 flex-1">
           <button
-            onClick={() => router.push('/')}
+            onClick={() => router.push(backUrl)}
             className="shrink-0 p-2 rounded-lg text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
             title={t('generation.backToHome')}
           >

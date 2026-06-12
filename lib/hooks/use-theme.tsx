@@ -12,7 +12,7 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export function ThemeProvider({ children }: { children: ReactNode }) {
+export function ThemeProvider({ children, forceTheme }: { children: ReactNode; forceTheme?: 'light' | 'dark' }) {
   const [theme, setThemeState] = useState<Theme>('system');
   const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>('light');
 
@@ -29,15 +29,23 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, []);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  // Apply theme to document
+  // Apply theme to document (forceTheme overrides user preference when set)
   useEffect(() => {
     const root = document.documentElement;
-    if (resolvedTheme === 'dark') {
+    const effective = forceTheme ?? resolvedTheme;
+    if (effective === 'dark') {
       root.classList.add('dark');
     } else {
       root.classList.remove('dark');
     }
-  }, [resolvedTheme]);
+    // On unmount, revert to the real resolved theme (important for AVA force-light)
+    return () => {
+      if (forceTheme) {
+        if (resolvedTheme === 'dark') root.classList.add('dark');
+        else root.classList.remove('dark');
+      }
+    };
+  }, [forceTheme, resolvedTheme]);
 
   // Listen to system theme changes
   useEffect(() => {

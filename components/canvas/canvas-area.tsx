@@ -21,6 +21,7 @@ interface CanvasAreaProps extends CanvasToolbarProps {
   readonly isCourseComplete?: boolean;
   readonly isGenerationFailed?: boolean;
   readonly onRetryGeneration?: () => void;
+  readonly sigmaMode?: boolean;
 }
 
 export function CanvasArea({
@@ -48,6 +49,7 @@ export function CanvasArea({
   isCourseComplete,
   isGenerationFailed,
   onRetryGeneration,
+  sigmaMode = false,
 }: CanvasAreaProps) {
   const { t } = useI18n();
   const showControls = mode === 'playback' && !whiteboardOpen;
@@ -175,7 +177,10 @@ export function CanvasArea({
                     {/* Spinner */}
                     <div className="relative w-12 h-12">
                       <div className="absolute inset-0 rounded-full border-2 border-gray-100 dark:border-gray-700" />
-                      <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-purple-500 dark:border-t-purple-400 animate-spin" />
+                      <div className={cn(
+                        'absolute inset-0 rounded-full border-2 border-transparent animate-spin',
+                        sigmaMode ? 'border-t-[#1D9E75]' : 'border-t-purple-500 dark:border-t-purple-400',
+                      )} />
                     </div>
                     {/* Text */}
                     <motion.span
@@ -230,10 +235,25 @@ export function CanvasArea({
                         ease: 'easeInOut',
                       },
                     }}
-                    className="w-20 h-20 rounded-full bg-white/95 dark:bg-gray-800/95 flex items-center justify-center shadow-[0_4px_30px_rgba(147,51,234,0.15),inset_0_0_0_1px_rgba(233,213,255,0.5)] dark:shadow-[0_4px_30px_rgba(147,51,234,0.3),inset_0_0_0_1px_rgba(126,34,206,0.3)]"
-                    style={{ willChange: 'transform' }}
+                    className={cn(
+                      'w-20 h-20 rounded-full bg-white/95 dark:bg-gray-800/95 flex items-center justify-center',
+                      !sigmaMode && 'shadow-[0_4px_30px_rgba(147,51,234,0.15),inset_0_0_0_1px_rgba(233,213,255,0.5)] dark:shadow-[0_4px_30px_rgba(147,51,234,0.3),inset_0_0_0_1px_rgba(126,34,206,0.3)]',
+                    )}
+                    style={{
+                      willChange: 'transform',
+                      ...(sigmaMode && {
+                        boxShadow: '0 4px 30px rgba(29,158,117,0.15), inset 0 0 0 1px rgba(29,158,117,0.2)',
+                      }),
+                    }}
                   >
-                    <Play className="w-7 h-7 text-purple-600 dark:text-purple-400 fill-purple-600/90 dark:fill-purple-400/90 ml-0.5" />
+                    <Play
+                      className={cn(
+                        'w-7 h-7 ml-0.5',
+                        sigmaMode
+                          ? 'text-[#1D9E75] fill-[#1D9E75]'
+                          : 'text-purple-600 dark:text-purple-400 fill-purple-600/90 dark:fill-purple-400/90',
+                      )}
+                    />
                   </motion.div>
                 </motion.div>
               </motion.div>
@@ -267,6 +287,7 @@ export function CanvasArea({
           onTogglePresentation={onTogglePresentation}
           showStopDiscussion={showStopDiscussion}
           onStopDiscussion={onStopDiscussion}
+          sigmaMode={sigmaMode}
         />
       )}
     </div>

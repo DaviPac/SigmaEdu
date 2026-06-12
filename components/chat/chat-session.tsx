@@ -26,6 +26,7 @@ interface ChatSessionProps {
   readonly isStreaming?: boolean;
   readonly activeBubbleId?: string | null;
   readonly onEndSession?: (sessionId: string) => void;
+  readonly sigmaMode?: boolean;
 }
 
 const AVATARS = {
@@ -48,6 +49,7 @@ const MessageBubble = memo(function MessageBubble({
   isStreaming,
   isLastMessage,
   isActive,
+  sigmaMode,
 }: {
   message: UIMessage<ChatMessageMetadata>;
   isUser: boolean;
@@ -55,6 +57,7 @@ const MessageBubble = memo(function MessageBubble({
   isStreaming: boolean;
   isLastMessage: boolean;
   isActive: boolean;
+  sigmaMode?: boolean;
 }) {
   const parts: MessagePart[] = (message.parts || []) as MessagePart[];
   const isLive = !!(isStreaming && isLastMessage);
@@ -66,34 +69,16 @@ const MessageBubble = memo(function MessageBubble({
 
   // Loading dots (between agent_start and first text_delta)
   if (!hasContent && isActive && message.role === 'assistant') {
+    const dotClass = sigmaMode
+      ? 'bg-[#1D9E75]/70'
+      : isTeacher
+        ? 'bg-purple-400/70 dark:bg-purple-500/70'
+        : 'bg-indigo-400/70 dark:bg-indigo-500/70';
     return (
       <div className="flex gap-1.5 items-center py-1.5 px-1">
-        <span
-          className={cn(
-            'w-1.5 h-1.5 rounded-full animate-pulse',
-            isTeacher
-              ? 'bg-purple-400/70 dark:bg-purple-500/70'
-              : 'bg-indigo-400/70 dark:bg-indigo-500/70',
-          )}
-        />
-        <span
-          className={cn(
-            'w-1.5 h-1.5 rounded-full animate-pulse',
-            isTeacher
-              ? 'bg-purple-400/70 dark:bg-purple-500/70'
-              : 'bg-indigo-400/70 dark:bg-indigo-500/70',
-          )}
-          style={{ animationDelay: '200ms' }}
-        />
-        <span
-          className={cn(
-            'w-1.5 h-1.5 rounded-full animate-pulse',
-            isTeacher
-              ? 'bg-purple-400/70 dark:bg-purple-500/70'
-              : 'bg-indigo-400/70 dark:bg-indigo-500/70',
-          )}
-          style={{ animationDelay: '400ms' }}
-        />
+        <span className={cn('w-1.5 h-1.5 rounded-full animate-pulse', dotClass)} />
+        <span className={cn('w-1.5 h-1.5 rounded-full animate-pulse', dotClass)} style={{ animationDelay: '200ms' }} />
+        <span className={cn('w-1.5 h-1.5 rounded-full animate-pulse', dotClass)} style={{ animationDelay: '400ms' }} />
       </div>
     );
   }
@@ -110,7 +95,9 @@ const MessageBubble = memo(function MessageBubble({
       className={cn(
         'inline-block px-2.5 py-1.5 rounded-xl text-[12px] leading-relaxed max-w-full text-left transition-shadow duration-300',
         isUser
-          ? 'bg-gradient-to-br from-purple-600 to-purple-700 dark:from-purple-500 dark:to-purple-600 text-white rounded-tr-sm shadow-sm shadow-purple-300/30 dark:shadow-purple-900/50 ring-1 ring-purple-500/20'
+          ? sigmaMode
+            ? 'bg-gradient-to-br from-[#1D9E75] to-[#0F6E56] text-white rounded-tr-sm shadow-sm shadow-[#1D9E75]/20 ring-1 ring-[#1D9E75]/20'
+            : 'bg-gradient-to-br from-purple-600 to-purple-700 dark:from-purple-500 dark:to-purple-600 text-white rounded-tr-sm shadow-sm shadow-purple-300/30 dark:shadow-purple-900/50 ring-1 ring-purple-500/20'
           : isTeacher
             ? 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-100 dark:border-gray-700 rounded-tl-sm shadow-sm'
             : 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-900 dark:text-indigo-200 border border-indigo-100/50 dark:border-indigo-800/50 rounded-tl-sm',
@@ -160,6 +147,7 @@ export function ChatSessionComponent({
   isStreaming,
   activeBubbleId,
   onEndSession,
+  sigmaMode,
 }: ChatSessionProps) {
   const { t } = useI18n();
   const userProfileAvatar = useUserProfileStore((s) => s.avatar);
@@ -249,16 +237,22 @@ export function ChatSessionComponent({
                   ? {
                       opacity: 1,
                       y: 0,
-                      boxShadow: [
-                        '0 0 0 0 rgba(124, 58, 237, 0)',
-                        '0 0 20px 0 rgba(124, 58, 237, 0.15)',
-                        '0 0 8px 0 rgba(124, 58, 237, 0.08)',
-                      ],
+                      boxShadow: sigmaMode
+                        ? [
+                            '0 0 0 0 rgba(29, 158, 117, 0)',
+                            '0 0 20px 0 rgba(29, 158, 117, 0.15)',
+                            '0 0 8px 0 rgba(29, 158, 117, 0.08)',
+                          ]
+                        : [
+                            '0 0 0 0 rgba(124, 58, 237, 0)',
+                            '0 0 20px 0 rgba(124, 58, 237, 0.15)',
+                            '0 0 8px 0 rgba(124, 58, 237, 0.08)',
+                          ],
                     }
                   : {
                       opacity: 1,
                       y: 0,
-                      boxShadow: '0 0 0 0 rgba(124, 58, 237, 0)',
+                      boxShadow: sigmaMode ? '0 0 0 0 rgba(29, 158, 117, 0)' : '0 0 0 0 rgba(124, 58, 237, 0)',
                     }
               }
               transition={
@@ -277,7 +271,9 @@ export function ChatSessionComponent({
                 'flex gap-2 px-1.5 py-1 rounded-lg border-l-[3px] border-l-transparent transition-[background-color,border-color] duration-300',
                 isUser && 'flex-row-reverse',
                 isActiveBubble &&
-                  'border-l-violet-500 dark:border-l-violet-400 bg-violet-50/50 dark:bg-violet-900/20',
+                  (sigmaMode
+                    ? 'border-l-[#1D9E75] bg-[#E1F5EE]/50'
+                    : 'border-l-violet-500 dark:border-l-violet-400 bg-violet-50/50 dark:bg-violet-900/20'),
               )}
             >
               {/* Mini Avatar */}
@@ -291,9 +287,9 @@ export function ChatSessionComponent({
                   className={cn(
                     'text-[9px] font-bold uppercase tracking-wider block mb-0.5',
                     isUser
-                      ? 'text-purple-500 dark:text-purple-400'
+                      ? sigmaMode ? 'text-[#1D9E75]' : 'text-purple-500 dark:text-purple-400'
                       : isTeacher
-                        ? 'text-purple-400 dark:text-purple-300'
+                        ? sigmaMode ? 'text-[#1D9E75]/70' : 'text-purple-400 dark:text-purple-300'
                         : 'text-indigo-400 dark:text-indigo-300',
                   )}
                 >
@@ -314,6 +310,7 @@ export function ChatSessionComponent({
                   isStreaming={!!isStreaming}
                   isLastMessage={isLastMessage}
                   isActive={isActive}
+                  sigmaMode={sigmaMode}
                 />
               </div>
             </motion.div>

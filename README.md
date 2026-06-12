@@ -711,3 +711,8 @@ If you find OpenMAIC useful in your research, please consider citing:
 ## 📄 License
 
 This project is licensed under the [GNU Affero General Public License v3.0](LICENSE).
+
+## Modificações
+
+Este projeto é baseado em OpenMAIC.
+Foram realizadas modificações por @davipac em 10/06/2026.

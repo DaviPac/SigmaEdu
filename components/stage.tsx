@@ -43,8 +43,16 @@ import { VisuallyHidden } from 'radix-ui';
  */
 export function Stage({
   onRetryOutline,
+  backUrl,
+  sigmaMode,
+  sigmaSubject,
+  sigmaUser,
 }: {
   onRetryOutline?: (outlineId: string) => Promise<void>;
+  backUrl?: string;
+  sigmaMode?: boolean;
+  sigmaSubject?: string;
+  sigmaUser?: string;
 }) {
   const { t } = useI18n();
   const {
@@ -69,6 +77,15 @@ export function Stage({
   const setChatAreaCollapsed = useSettingsStore((s) => s.setChatAreaCollapsed);
   const setTTSMuted = useSettingsStore((s) => s.setTTSMuted);
   const setTTSVolume = useSettingsStore((s) => s.setTTSVolume);
+
+  // In student (sigma) mode: sidebar open, chat closed — set once on mount
+  useEffect(() => {
+    if (sigmaMode) {
+      setSidebarCollapsed(false);
+      setChatAreaCollapsed(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // PlaybackEngine state
   const [engineMode, setEngineMode] = useState<EngineMode>('idle');
@@ -941,9 +958,9 @@ export function Stage({
       }
     : null;
 
-  // Calculate scene viewer height (subtract Header's 80px height)
+  // Calculate scene viewer height (subtract header height)
   const sceneViewerHeight = (() => {
-    const headerHeight = isPresenting ? 0 : 80; // Header h-20 = 80px
+    const headerHeight = isPresenting ? 0 : sigmaMode ? 48 : 80; // sigma h-12=48px, default h-20=80px
     const roundtableHeight = mode === 'playback' && !isPresenting ? 192 : 0;
     return `calc(100% - ${headerHeight + roundtableHeight}px)`;
   })();
@@ -952,7 +969,8 @@ export function Stage({
     <div
       ref={stageRef}
       className={cn(
-        'flex-1 flex overflow-hidden bg-gray-50 dark:bg-gray-900',
+        'flex-1 flex overflow-hidden',
+        sigmaMode ? 'bg-[#f5f5f5] dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-900',
         isPresenting && !controlsVisible && 'cursor-none',
       )}
     >
@@ -963,6 +981,8 @@ export function Stage({
         onSceneSelect={gatedSceneSwitch}
         onRetryOutline={onRetryOutline}
         isCourseComplete={isCourseComplete}
+        sigmaMode={sigmaMode}
+        backUrl={backUrl}
       />
 
       {/* Main Content Area */}
@@ -974,6 +994,10 @@ export function Stage({
               currentScene?.title ||
               (isCourseComplete && isPendingScene ? t('stage.courseComplete') : '')
             }
+            backUrl={backUrl}
+            sigmaMode={sigmaMode}
+            sigmaSubject={sigmaSubject}
+            sigmaUser={sigmaUser}
           />
         )}
 
@@ -1021,6 +1045,7 @@ export function Stage({
                 ? () => onRetryOutline(generatingOutlines[0].id)
                 : undefined
             }
+            sigmaMode={sigmaMode}
           />
         </div>
 
@@ -1161,6 +1186,7 @@ export function Stage({
               onTogglePresentation={togglePresentation}
               onPresentationInteractionChange={setIsPresentationInteractionActive}
               fullscreenContainerRef={stageRef}
+              sigmaMode={sigmaMode}
             />
           </div>
         )}
@@ -1219,6 +1245,7 @@ export function Stage({
         onStopSession={doSessionCleanup}
         onSegmentSealed={discussionTTS.handleSegmentSealed}
         shouldHoldAfterReveal={discussionTTS.shouldHold}
+        sigmaMode={sigmaMode}
       />
 
       {/* Scene switch confirmation dialog */}

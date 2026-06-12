@@ -50,6 +50,7 @@ export interface CanvasToolbarProps {
   readonly onToggleAutoPlay?: () => void;
   readonly playbackSpeed?: number;
   readonly onCycleSpeed?: () => void;
+  readonly sigmaMode?: boolean;
 }
 
 /* Compact control button */
@@ -108,6 +109,7 @@ export function CanvasToolbar({
   onToggleAutoPlay,
   playbackSpeed = 1,
   onCycleSpeed,
+  sigmaMode = false,
 }: CanvasToolbarProps) {
   const { t } = useI18n();
   const canGoPrev = currentSceneIndex > 0;
@@ -231,10 +233,14 @@ export function CanvasToolbar({
                       'bg-gray-200 dark:bg-gray-600',
                       '[writing-mode:vertical-lr] [direction:rtl]',
                       '[&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3',
-                      '[&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-violet-500 [&::-webkit-slider-thumb]:dark:bg-violet-400',
+                      sigmaMode
+                        ? '[&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#1D9E75]'
+                        : '[&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-violet-500 [&::-webkit-slider-thumb]:dark:bg-violet-400',
                       '[&::-webkit-slider-thumb]:shadow-sm [&::-webkit-slider-thumb]:cursor-pointer',
                       '[&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:h-3',
-                      '[&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-violet-500 [&::-moz-range-thumb]:border-0',
+                      sigmaMode
+                        ? '[&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#1D9E75] [&::-moz-range-thumb]:border-0'
+                        : '[&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-violet-500 [&::-moz-range-thumb]:border-0',
                     )}
                   />
                 </div>
@@ -257,7 +263,9 @@ export function CanvasToolbar({
                       'text-[11px] font-semibold tabular-nums leading-none',
                       'active:scale-90',
                       playbackSpeed !== 1
-                        ? 'text-violet-600 dark:text-violet-400 bg-violet-500/10 dark:bg-violet-400/10'
+                        ? sigmaMode
+                          ? 'text-[#1D9E75] bg-[#1D9E75]/10'
+                          : 'text-violet-600 dark:text-violet-400 bg-violet-500/10 dark:bg-violet-400/10'
                         : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200',
                     )}
                     aria-label="Playback speed"
@@ -317,7 +325,7 @@ export function CanvasToolbar({
                 ctrlBtn,
                 'w-7 h-6',
                 engineState === 'playing'
-                  ? 'text-violet-600 dark:text-violet-400'
+                  ? sigmaMode ? 'text-[#1D9E75]' : 'text-violet-600 dark:text-violet-400'
                   : 'text-gray-500 dark:text-gray-400',
               )}
               aria-label={engineState === 'playing' ? 'Pause' : 'Play'}
@@ -358,7 +366,7 @@ export function CanvasToolbar({
                       ctrlBtn,
                       'w-8 h-6',
                       autoPlayLecture
-                        ? 'text-violet-600 dark:text-violet-400'
+                        ? sigmaMode ? 'text-[#1D9E75]' : 'text-violet-600 dark:text-violet-400'
                         : 'text-gray-500 dark:text-gray-400',
                     )}
                     aria-label="Auto-play"
@@ -383,14 +391,14 @@ export function CanvasToolbar({
               ctrlBtn,
               'w-6 h-6',
               whiteboardOpen
-                ? 'text-violet-600 dark:text-violet-400'
+                ? sigmaMode ? 'text-[#1D9E75]' : 'text-violet-600 dark:text-violet-400'
                 : 'text-gray-500 dark:text-gray-400',
             )}
             title={whiteboardOpen ? t('whiteboard.minimize') : t('whiteboard.open')}
           >
             <PencilLine className="w-3.5 h-3.5" />
             {!whiteboardOpen && whiteboardElementCount > 0 && (
-              <span className="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-violet-500 dark:bg-violet-400 rounded-full" />
+              <span className={cn('absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full', sigmaMode ? 'bg-[#1D9E75]' : 'bg-violet-500 dark:bg-violet-400')} />
             )}
           </button>
         </div>
@@ -406,7 +414,7 @@ export function CanvasToolbar({
               ctrlBtn,
               'w-6 h-6',
               isPresenting
-                ? 'text-violet-600 dark:text-violet-400'
+                ? sigmaMode ? 'text-[#1D9E75]' : 'text-violet-600 dark:text-violet-400'
                 : 'text-gray-500 dark:text-gray-400',
             )}
             aria-label={presentationLabel}

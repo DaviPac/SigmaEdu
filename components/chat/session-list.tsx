@@ -14,6 +14,7 @@ interface SessionListProps {
   activeBubbleId?: string | null;
   onToggleExpand: (sessionId: string) => void;
   onEndSession: (sessionId: string) => Promise<void>;
+  sigmaMode?: boolean;
 }
 
 const sessionBadgeStyles = {
@@ -47,6 +48,7 @@ export function SessionList({
   activeBubbleId,
   onToggleExpand,
   onEndSession,
+  sigmaMode,
 }: SessionListProps) {
   const { t } = useI18n();
   return (
@@ -67,7 +69,9 @@ export function SessionList({
             className={cn(
               'rounded-xl border transition-all duration-500 overflow-hidden',
               isActive
-                ? 'border-purple-200 dark:border-purple-700 bg-purple-50/30 dark:bg-purple-900/20 shadow-sm'
+                ? sigmaMode
+                  ? 'border-[#1D9E75]/30 bg-[#E1F5EE]/30 shadow-sm'
+                  : 'border-purple-200 dark:border-purple-700 bg-purple-50/30 dark:bg-purple-900/20 shadow-sm'
                 : 'border-gray-100 dark:border-gray-800 bg-white/50 dark:bg-gray-800/50',
             )}
           >
@@ -129,6 +133,7 @@ export function SessionList({
                       isStreaming={isStreaming && isActive}
                       activeBubbleId={activeBubbleId}
                       onEndSession={onEndSession}
+                      sigmaMode={sigmaMode}
                     />
                   </div>
                 </motion.div>

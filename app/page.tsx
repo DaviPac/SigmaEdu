@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef, useDeferredValue } from 'react';
-import { useRouter } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   ArrowUp,
@@ -1318,5 +1318,6 @@ function ClassroomCard({
 }
 
 export default function Page() {
+  redirect('/ava')
   return <HomePage />;
 }

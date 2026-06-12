@@ -37,6 +37,7 @@ import type { AudioPlayer } from '@/lib/utils/audio-player';
 import { ActionEngine } from '@/lib/action/engine';
 import { useCanvasStore } from '@/lib/store/canvas';
 import { useSettingsStore } from '@/lib/store/settings';
+import { useStageStore } from '@/lib/store/stage';
 import { createLogger } from '@/lib/logger';
 
 const log = createLogger('PlaybackEngine');
@@ -47,6 +48,31 @@ const log = createLogger('PlaybackEngine');
  * numbers, and short Latin fragments (e.g. "AI课堂").
  */
 const CJK_LANG_THRESHOLD = 0.3;
+
+/**
+ * Map a `languageDirective` string produced by the AI (e.g. "Ensine em português
+ * brasileiro." or "Teach in Spanish.") to a BCP-47 language tag so the browser
+ * can select an appropriate TTS voice automatically.
+ */
+function inferLangFromDirective(directive: string): string {
+  const d = directive.toLowerCase();
+  if (d.includes('português') || d.includes('portuguese') || d.includes('portugues')) {
+    return d.includes('brasil') || d.includes('brazil') || d.includes('pt-br') ? 'pt-BR' : 'pt-PT';
+  }
+  if (d.includes('español') || d.includes('spanish') || d.includes('espanol')) return 'es-ES';
+  if (d.includes('français') || d.includes('french') || d.includes('francais')) return 'fr-FR';
+  if (d.includes('deutsch') || d.includes('german')) return 'de-DE';
+  if (d.includes('italiano') || d.includes('italian')) return 'it-IT';
+  if (d.includes('русский') || d.includes('russian')) return 'ru-RU';
+  if (d.includes('日本語') || d.includes('japanese')) return 'ja-JP';
+  if (d.includes('한국어') || d.includes('korean')) return 'ko-KR';
+  if (d.includes('中文') || d.includes('chinese') || d.includes('mandarin')) {
+    return d.includes('traditional') || d.includes('taiwan') ? 'zh-TW' : 'zh-CN';
+  }
+  if (d.includes('عربي') || d.includes('arabic')) return 'ar';
+  if (d.includes('हिंदी') || d.includes('hindi')) return 'hi-IN';
+  return 'en-US';
+}
 
 export class PlaybackEngine {
   private scenes: Scene[] = [];
@@ -662,13 +688,23 @@ export class PlaybackEngine {
       }
     }
     if (!voiceFound) {
-      // No usable voice configured — detect text language so the browser
-      // auto-selects an appropriate voice.
+      // No usable voice configured — infer language from the stage's languageDirective
+      // (set by the AI during outline generation) so the browser picks the right voice.
+      // CJK character ratio takes precedence because the characters themselves are
+      // authoritative; for all other scripts we rely on the directive.
       const cjkRatio =
         chunkText.length > 0
-          ? (chunkText.match(/[\u4e00-\u9fff\u3400-\u4dbf]/g) || []).length / chunkText.length
+          ? (chunkText.match(/[一-鿿㐀-䶿]/g) || []).length / chunkText.length
           : 0;
-      utterance.lang = cjkRatio > CJK_LANG_THRESHOLD ? 'zh-CN' : 'en-US';
+      const directive = useStageStore.getState().stage?.languageDirective ?? '';
+      const lang = cjkRatio > CJK_LANG_THRESHOLD ? 'zh-CN' : inferLangFromDirective(directive);
+      utterance.lang = lang;
+
+      // Also try to pick a matching installed voice so the accent is correct.
+      const matchedVoice =
+        voices.find((v) => v.lang === lang) ??
+        voices.find((v) => v.lang.startsWith(lang.split('-')[0]));
+      if (matchedVoice) utterance.voice = matchedVoice;
     }
 
     utterance.onend = () => {
