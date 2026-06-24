@@ -43,4 +43,25 @@ test.describe('Agente Acompanhamento', () => {
     // 11. Verifica se o "Acompanhamento · modo ENEM" respondeu (mock ou real depende do setup)
     await expect(page.locator('text=Acompanhamento · modo ENEM').first()).toBeVisible();
   });
+
+  test('deve gerar formato dinamico de HTML para personalidade customizada', async ({ page }) => {
+    await page.goto('/ava/acompanhamento');
+
+    // Seleciona a opção personalizada
+    const radioCustom = page.locator('label', { hasText: 'Personalizar professor' }).locator('input[type="radio"]');
+    await radioCustom.check();
+
+    // Preenche o input
+    const inputPersonalizado = page.locator('input[placeholder="Ex: Fale como um pirata, ou como um sargento..."]');
+    await expect(inputPersonalizado).toBeVisible();
+    await inputPersonalizado.fill('Pirata do Caribe');
+
+    // Ao clicar em confirmar, deve mostrar o loader de geração do formato visual
+    const buttonConfirm = page.locator('button', { hasText: 'Confirmar Estilo' });
+    await buttonConfirm.click();
+    
+    // Como a request pode ser rápida, vamos apenas garantir que a tela transicione corretamente com a badge formatada
+    await expect(page.locator('text=Qual tipo de professor você prefere?')).not.toBeVisible();
+    await expect(page.locator('text=Estilo: Pirata do Caribe')).toBeVisible();
+  });
 });
