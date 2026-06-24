@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, Loader2, Glasses } from 'lucide-react';
+import { Send, Loader2, Glasses, Settings2 } from 'lucide-react';
 import { AGENTS, ACOMPANHAMENTO_CONFIG } from '@/lib/mock/ava-data';
 import { getCurrentModelConfig } from '@/lib/utils/model-config';
 import type { ChatMessage } from '@/lib/mock/ava-data';
@@ -91,6 +91,7 @@ export default function AcompanhamentoScreen() {
   const [personalityConfigured, setPersonalityConfigured] = useState(false);
   const [personalityType, setPersonalityType] = useState('Normal');
   const [customPersonality, setCustomPersonality] = useState('');
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -100,12 +101,33 @@ export default function AcompanhamentoScreen() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
+    const storedType = localStorage.getItem('avaAcompanhamento_type');
+    const storedCustom = localStorage.getItem('avaAcompanhamento_custom');
+    const storedConfigured = localStorage.getItem('avaAcompanhamento_configured');
+    
+    if (storedType) setPersonalityType(storedType);
+    if (storedCustom) setCustomPersonality(storedCustom);
+    if (storedConfigured === 'true') setPersonalityConfigured(true);
+    
+    setIsLoaded(true);
+  }, []);
+
+  useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading, personalityConfigured]);
 
-  /** Define a personalidade escolhida pelo usuário. */
+  /** Define a personalidade escolhida pelo usuário e salva no localStorage. */
   const handleConfirmPersonality = () => {
     setPersonalityConfigured(true);
+    localStorage.setItem('avaAcompanhamento_type', personalityType);
+    localStorage.setItem('avaAcompanhamento_custom', customPersonality);
+    localStorage.setItem('avaAcompanhamento_configured', 'true');
+  };
+
+  /** Redefine a personalidade, permitindo a edição na tela inicial. */
+  const handleEditPersonality = () => {
+    setPersonalityConfigured(false);
+    localStorage.setItem('avaAcompanhamento_configured', 'false');
   };
 
   const currentPersonality = personalityType === 'Personalizar professor' ? customPersonality : personalityType;
@@ -155,6 +177,8 @@ export default function AcompanhamentoScreen() {
   };
 
   const isEmpty = messages.length === 0 && !loading;
+
+  if (!isLoaded) return null;
 
   if (!personalityConfigured) {
     return (
@@ -219,14 +243,21 @@ export default function AcompanhamentoScreen() {
         </div>
         <div>
           <p className="text-[15px] font-medium text-gray-900 dark:text-gray-100">{agent.label}</p>
-          <p className="text-[11px] text-gray-500 dark:text-gray-400">{agent.description} • Estilo: {currentPersonality}</p>
+          <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate max-w-[200px] sm:max-w-xs">{agent.description} • Estilo: {currentPersonality}</p>
         </div>
         <div
           className="ml-auto flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium"
           style={{ background: agent.bg, color: agent.color }}
         >
-          ⚡ +{agent.xpReward} XP por dúvida
+          ⚡ +{agent.xpReward} XP
         </div>
+        <button
+          onClick={handleEditPersonality}
+          className="ml-2 flex items-center justify-center p-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-gray-500 dark:text-gray-400"
+          title="Editar Estilo do Professor"
+        >
+          <Settings2 className="w-[18px] h-[18px]" />
+        </button>
       </div>
 
       <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 mb-3 flex flex-col gap-2.5" style={{ minHeight: 200 }}>
