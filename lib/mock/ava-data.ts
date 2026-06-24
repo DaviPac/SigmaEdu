@@ -22,7 +22,7 @@ export const MOCK_STUDENT: MockStudent = {
 
 // ─── Agents ───────────────────────────────────────────────────────────────────
 
-export type AgentId = 'diagnostico' | 'avaliador' | 'pedagogico' | 'tutor';
+export type AgentId = 'diagnostico' | 'avaliador' | 'pedagogico' | 'tutor' | 'acompanhamento';
 
 export type AgentData = {
   id: AgentId;
@@ -39,6 +39,7 @@ export const AGENTS: AgentData[] = [
   { id: 'avaliador',   label: 'Agente Avaliador',   subtitle: 'Corrige atividades', description: 'Simulado — ciências da natureza · resultado', bg: '#EAF3DE', color: '#3B6D11', xpReward: 120 },
   { id: 'pedagogico',  label: 'Agente Pedagógico',  subtitle: 'Cria sua trilha',    description: 'Trilha personalizada para o ENEM 2025 — Davi', bg: '#EEEDFE', color: '#534AB7', xpReward: 0 },
   { id: 'tutor',       label: 'Agente Tutor',        subtitle: 'Tira dúvidas',       description: 'Modo ENEM — simula a linguagem da banca', bg: '#FAEEDA', color: '#854F0B', xpReward: 20 },
+  { id: 'acompanhamento', label: 'Acompanhar Questões', subtitle: 'Seu progresso', description: 'Analisa seu desempenho e propõe melhorias', bg: '#F4EBFF', color: '#7E22CE', xpReward: 30 },
 ];
 
 // ─── Diagnóstico config ───────────────────────────────────────────────────────
@@ -201,6 +202,23 @@ export const TUTOR_CONFIG: TutorConfig = {
     'Explica a proposta de intervenção (C5)',
     'Diferença entre Marx, Weber e Durkheim',
     'Como resolver questões de genética?',
+  ],
+};
+
+// ─── Acompanhamento ───────────────────────────────────────────────────────────
+
+export type AcompanhamentoConfig = {
+  initialMessages: ChatMessage[];
+  suggestedQuestions: string[];
+};
+
+export const ACOMPANHAMENTO_CONFIG: AcompanhamentoConfig = {
+  initialMessages: [],
+  suggestedQuestions: [
+    'Quais foram meus principais erros hoje?',
+    'Como posso melhorar em matemática?',
+    'Focar em quais assuntos esta semana?',
+    'Resumo do meu desempenho recente',
   ],
 };
 
