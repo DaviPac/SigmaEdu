@@ -3,6 +3,7 @@ import { callLLM } from '@/lib/ai/llm';
 import { apiError, apiSuccess } from '@/lib/server/api-response';
 import { resolveModel } from '@/lib/server/resolve-model';
 import { createLogger } from '@/lib/logger';
+import { runValidatorAgent, runFormulatorAgent } from '@/lib/ai/agents/acompanhamento-crew';
 
 const log = createLogger('Ava Acompanhamento');
 
@@ -22,7 +23,7 @@ interface AcompanhamentoRequest {
   providerType?: string;
 }
 
-const getSystemPrompt = (personality: string, formatTemplate?: string) => {
+const getSystemPrompt = (personality: string, formatTemplate?: string, formulatorContext?: string) => {
   let styleGuideline = '- Seja didático e objetivo';
   
   if (personality === 'Mais lúdico') {
@@ -44,14 +45,20 @@ Template HTML:
 ${formatTemplate}`;
   }
 
-  return `Você é o Agente de Acompanhamento IA da SigmaEdu — focado em monitorar o progresso do aluno no ENEM.
+  const pedagogicalContext = formulatorContext 
+    ? `\n[INSTRUÇÃO CRÍTICA DO SETOR PEDAGÓGICO]\nSua equipe de tutores (O Formulador) já rascunhou a teoria e a resolução perfeita para essa dúvida. O seu dever é APENAS pegar esse conteúdo técnico e falar com a SUA personalidade (formatando na saída esperada).\nConteúdo técnico a ser repassado:\n"""\n${formulatorContext}\n"""\n\nResuma ou expanda conforme a sua personalidade mandar, mas seja fiel a esse roteiro e use essa exata questão.`
+    : '';
+
+  return `Você é o Agente Professor (Acompanhamento) da SigmaEdu — focado em monitorar o progresso do aluno no ENEM.
 
 Diretrizes:
 - Analise dúvidas sobre o desempenho e direcione o aluno.
 ${styleGuideline}
 - Responda em português brasileiro.
 - Contextualize as orientações pensando no ENEM.
-- Respostas concisas: 2 a 5 parágrafos no máximo.${templateGuideline}`;
+- Respostas concisas: 2 a 5 parágrafos no máximo.
+${pedagogicalContext}
+${templateGuideline}`;
 };
 
 export async function POST(req: NextRequest) {
@@ -70,7 +77,27 @@ export async function POST(req: NextRequest) {
       providerType,
     });
 
-    const systemPrompt = getSystemPrompt(personality || 'Normal', formatTemplate);
+    log.info(`Acompanhamento [${personality}]: Iniciando Crew para "${userMessage.slice(0, 60)}"`);
+
+    // --- ETAPA 1: O Validador ---
+    const validation = await runValidatorAgent(userMessage, languageModel);
+    
+    let formulatorContext = '';
+    
+    if (validation.isEnemSubject) {
+      log.info(`Assunto do ENEM detectado: ${validation.subjectName} (${validation.difficulty}). Acionando Formulador...`);
+      // --- ETAPA 2: O Formulador ---
+      formulatorContext = await runFormulatorAgent(userMessage, validation, languageModel);
+    } else if (validation.subjectName === null) {
+      log.info(`Assunto genérico ou fora do ENEM. Ignorando Formulador.`);
+      // Se não for assunto do enem mas não for genérico (ex: mecânica de carros), o professor dará bronca.
+      if (validation.reasoning && !validation.reasoning.includes('genéric')) {
+         formulatorContext = `[NOTA DO SUPERVISOR]: O aluno está perguntando sobre algo que NÃO CAI no ENEM. Dê uma bronca amigável (na sua personalidade) e lembre-o de focar nos assuntos da prova.`;
+      }
+    }
+
+    // --- ETAPA 3: O Professor ---
+    const systemPrompt = getSystemPrompt(personality || 'Normal', formatTemplate, formulatorContext);
 
     // Build conversation context
     const historyContext =
@@ -84,16 +111,14 @@ export async function POST(req: NextRequest) {
 
     const prompt = `${historyContext}\n\nAluno: ${userMessage}`;
 
-    log.info(`Acompanhamento [${personality}]: "${userMessage.slice(0, 60)}"`);
-
     const result = await callLLM(
       { model: languageModel, system: systemPrompt, prompt },
-      'ava-acompanhamento',
+      'ava-acompanhamento-professor'
     );
 
     return apiSuccess({ text: result.text });
   } catch (error) {
-    log.error('Acompanhamento failed:', error);
+    log.error('Acompanhamento Crew failed:', error);
     return apiError(
       'INTERNAL_ERROR',
       500,
