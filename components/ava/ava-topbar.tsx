@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MOCK_STUDENT } from '@/lib/mock/ava-data';
 import { useTheme } from '@/lib/hooks/use-theme';
+import { useAvaAuth } from './ava-auth-context';
 
 const TABS = [
   { label: 'Início',          href: '/ava/painel',  match: (p: string) => p === '/ava/painel' || p === '/ava' },
@@ -17,6 +18,10 @@ export default function AvaTopbar() {
   const pathname = usePathname();
   const { resolvedTheme, setTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
+  const { user, logout } = useAvaAuth();
+
+  const displayName = user?.username ?? MOCK_STUDENT.name;
+  const initials = displayName.slice(0, 2).toUpperCase();
 
   return (
     <header className="h-12 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-4 flex-shrink-0">
@@ -76,9 +81,19 @@ export default function AvaTopbar() {
         <div
           className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-medium"
           style={{ background: '#E6F1FB', color: '#0C447C' }}
+          title={displayName}
         >
-          {MOCK_STUDENT.initials}
+          {initials}
         </div>
+
+        {/* Logout */}
+        <button
+          onClick={() => logout()}
+          className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+          title="Sair"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+        </button>
       </div>
     </header>
   );
