@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Send, Loader2, Glasses, Settings2 } from 'lucide-react';
-import { AGENTS, ACOMPANHAMENTO_CONFIG } from '@/lib/mock/ava-data';
+import { AGENTS, ACOMPANHAMENTO_CONFIG, ACOMPANHAMENTO_FORMATS } from '@/lib/mock/ava-data';
 import { getCurrentModelConfig } from '@/lib/utils/model-config';
 import type { ChatMessage } from '@/lib/mock/ava-data';
 
@@ -92,6 +92,7 @@ export default function AcompanhamentoScreen() {
   const [personalityType, setPersonalityType] = useState('Normal');
   const [customPersonality, setCustomPersonality] = useState('');
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isGeneratingFormat, setIsGeneratingFormat] = useState(false);
 
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -116,12 +117,45 @@ export default function AcompanhamentoScreen() {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading, personalityConfigured]);
 
-  /** Define a personalidade escolhida pelo usuário e salva no localStorage. */
-  const handleConfirmPersonality = () => {
+  /** Define a personalidade escolhida pelo usuário, busca formato customizado se necessário e salva. */
+  const handleConfirmPersonality = async () => {
+    let format = '';
+    
+    if (personalityType === 'Personalizar professor') {
+      setIsGeneratingFormat(true);
+      try {
+        const cfg = getCurrentModelConfig();
+        const res = await fetch('/api/ava/format-generator', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            personality: customPersonality,
+            model: cfg.modelString,
+            apiKey: cfg.apiKey,
+            baseUrl: cfg.baseUrl,
+            providerType: cfg.providerType,
+          }),
+        });
+        const data = await res.json();
+        if (data.format) format = data.format;
+      } catch (err) {
+        console.error('Failed to generate format', err);
+      } finally {
+        setIsGeneratingFormat(false);
+      }
+    } else {
+      format = ACOMPANHAMENTO_FORMATS[personalityType] || '';
+    }
+
     setPersonalityConfigured(true);
     localStorage.setItem('avaAcompanhamento_type', personalityType);
     localStorage.setItem('avaAcompanhamento_custom', customPersonality);
     localStorage.setItem('avaAcompanhamento_configured', 'true');
+    if (format) {
+      localStorage.setItem('avaAcompanhamento_format', format);
+    } else {
+      localStorage.removeItem('avaAcompanhamento_format');
+    }
   };
 
   /** Redefine a personalidade, permitindo a edição na tela inicial. */
@@ -145,6 +179,8 @@ export default function AcompanhamentoScreen() {
 
     try {
       const cfg = getCurrentModelConfig();
+      const formatTemplate = localStorage.getItem('avaAcompanhamento_format') || undefined;
+
       const res = await fetch('/api/ava/acompanhamento', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -152,6 +188,7 @@ export default function AcompanhamentoScreen() {
           userMessage: msg,
           history: messages,
           personality: currentPersonality,
+          formatTemplate,
           model: cfg.modelString,
           apiKey: cfg.apiKey,
           baseUrl: cfg.baseUrl,
@@ -221,11 +258,17 @@ export default function AcompanhamentoScreen() {
 
           <button
             onClick={handleConfirmPersonality}
-            disabled={personalityType === 'Personalizar professor' && !customPersonality.trim()}
-            className="w-full py-2.5 rounded-md font-medium text-white transition-opacity disabled:opacity-50"
+            disabled={(personalityType === 'Personalizar professor' && !customPersonality.trim()) || isGeneratingFormat}
+            className="w-full py-2.5 rounded-md font-medium text-white transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
             style={{ background: agent.color }}
           >
-            Confirmar Estilo
+            {isGeneratingFormat ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" /> Gerando Formato Visual...
+              </>
+            ) : (
+              'Confirmar Estilo'
+            )}
           </button>
         </div>
       </div>
@@ -290,12 +333,16 @@ export default function AcompanhamentoScreen() {
           ) : (
             <div
               key={i}
-              className="max-w-[94%] px-3.5 py-2.5 rounded-[12px_12px_12px_4px] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100"
+              className="max-w-[100%] sm:max-w-[94%] px-3.5 py-2.5 rounded-[12px_12px_12px_4px] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 overflow-hidden"
             >
               <p className="text-[10px] text-gray-400 dark:text-gray-500 mb-1.5 flex items-center gap-1">
                 <Glasses className="w-3 h-3" /> Acompanhamento · modo ENEM
               </p>
-              <MiniMarkdown text={msg.text} />
+              {msg.text.trim().startsWith('<div') ? (
+                <div dangerouslySetInnerHTML={{ __html: msg.text }} />
+              ) : (
+                <MiniMarkdown text={msg.text} />
+              )}
             </div>
           ),
         )}

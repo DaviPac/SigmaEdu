@@ -15,13 +15,14 @@ interface AcompanhamentoRequest {
   history: AcompanhamentoMessage[];
   userMessage: string;
   personality: string;
+  formatTemplate?: string;
   model?: string;
   apiKey?: string;
   baseUrl?: string;
   providerType?: string;
 }
 
-const getSystemPrompt = (personality: string) => {
+const getSystemPrompt = (personality: string, formatTemplate?: string) => {
   let styleGuideline = '- Seja didático e objetivo';
   
   if (personality === 'Mais lúdico') {
@@ -32,6 +33,17 @@ const getSystemPrompt = (personality: string) => {
     styleGuideline = `- Adote a seguinte personalidade: ${personality}`;
   }
 
+  let templateGuideline = '';
+  if (formatTemplate) {
+    templateGuideline = `\nREQUISITO CRÍTICO DE FORMATO DE SAÍDA:
+Você DEVE OBRIGATORIAMENTE estruturar sua resposta inteira preenchendo o template HTML abaixo. 
+Não adicione NENHUM texto ou mensagem amigável fora deste HTML. Tudo que você disser deve estar substituindo os placeholders (ex: [Texto]) dentro deste HTML.
+Seu retorno deve ser PURAMENTE o código HTML.
+
+Template HTML:
+${formatTemplate}`;
+  }
+
   return `Você é o Agente de Acompanhamento IA da SigmaEdu — focado em monitorar o progresso do aluno no ENEM.
 
 Diretrizes:
@@ -39,13 +51,13 @@ Diretrizes:
 ${styleGuideline}
 - Responda em português brasileiro.
 - Contextualize as orientações pensando no ENEM.
-- Respostas concisas: 2 a 5 parágrafos no máximo.`;
+- Respostas concisas: 2 a 5 parágrafos no máximo.${templateGuideline}`;
 };
 
 export async function POST(req: NextRequest) {
   try {
     const body = (await req.json()) as AcompanhamentoRequest;
-    const { history, userMessage, personality, model, apiKey, baseUrl, providerType } = body;
+    const { history, userMessage, personality, formatTemplate, model, apiKey, baseUrl, providerType } = body;
 
     if (!userMessage?.trim()) {
       return apiError('MISSING_REQUIRED_FIELD', 400, 'userMessage é obrigatório');
@@ -58,7 +70,7 @@ export async function POST(req: NextRequest) {
       providerType,
     });
 
-    const systemPrompt = getSystemPrompt(personality || 'Normal');
+    const systemPrompt = getSystemPrompt(personality || 'Normal', formatTemplate);
 
     // Build conversation context
     const historyContext =
