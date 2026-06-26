@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import {
   LayoutDashboard, Map, Play, PenLine,
   Activity, MessageSquare, CheckSquare2, GraduationCap,
-  Trophy, Star,
+  Trophy, Star, Glasses,
 } from 'lucide-react';
 
 type SidebarItem = { icon: React.ElementType; label: string; href: string };
@@ -23,6 +23,7 @@ const AGENT_ITEMS: SidebarItem[] = [
   { icon: MessageSquare, label: 'Tutor',      href: '/ava/tutor'       },
   { icon: CheckSquare2, label: 'Avaliador',   href: '/ava/avaliador'   },
   { icon: GraduationCap, label: 'Pedagógico', href: '/ava/pedagogico'  },
+  { icon: Glasses,       label: 'Acompanhamento', href: '/ava/acompanhamento' },
 ];
 
 const EXTRA_ITEMS: SidebarItem[] = [
