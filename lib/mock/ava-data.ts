@@ -22,7 +22,7 @@ export const MOCK_STUDENT: MockStudent = {
 
 // ─── Agents ───────────────────────────────────────────────────────────────────
 
-export type AgentId = 'diagnostico' | 'avaliador' | 'pedagogico' | 'tutor';
+export type AgentId = 'diagnostico' | 'avaliador' | 'pedagogico' | 'tutor' | 'acompanhamento';
 
 export type AgentData = {
   id: AgentId;
@@ -39,6 +39,7 @@ export const AGENTS: AgentData[] = [
   { id: 'avaliador',   label: 'Agente Avaliador',   subtitle: 'Corrige atividades', description: 'Simulado — ciências da natureza · resultado', bg: '#EAF3DE', color: '#3B6D11', xpReward: 120 },
   { id: 'pedagogico',  label: 'Agente Pedagógico',  subtitle: 'Cria sua trilha',    description: 'Trilha personalizada para o ENEM 2025 — Davi', bg: '#EEEDFE', color: '#534AB7', xpReward: 0 },
   { id: 'tutor',       label: 'Agente Tutor',        subtitle: 'Tira dúvidas',       description: 'Modo ENEM — simula a linguagem da banca', bg: '#FAEEDA', color: '#854F0B', xpReward: 20 },
+  { id: 'acompanhamento', label: 'Acompanhar Questões', subtitle: 'Seu progresso', description: 'Analisa seu desempenho e propõe melhorias', bg: '#F4EBFF', color: '#7E22CE', xpReward: 30 },
 ];
 
 // ─── Diagnóstico config ───────────────────────────────────────────────────────
@@ -202,6 +203,77 @@ export const TUTOR_CONFIG: TutorConfig = {
     'Diferença entre Marx, Weber e Durkheim',
     'Como resolver questões de genética?',
   ],
+};
+
+// ─── Acompanhamento ───────────────────────────────────────────────────────────
+
+export type AcompanhamentoConfig = {
+  initialMessages: ChatMessage[];
+  suggestedQuestions: string[];
+};
+
+export const ACOMPANHAMENTO_CONFIG: AcompanhamentoConfig = {
+  initialMessages: [],
+  suggestedQuestions: [
+    'Quais foram meus principais erros hoje?',
+    'Como posso melhorar em matemática?',
+    'Focar em quais assuntos esta semana?',
+    'Resumo do meu desempenho recente',
+  ],
+};
+
+export const ACOMPANHAMENTO_FORMATS: Record<string, string> = {
+  'Normal': `<div class="space-y-4 text-sm text-gray-800 dark:text-gray-200">
+  <div class="border-b border-gray-200 dark:border-gray-700 pb-2">
+    <h3 class="font-bold text-gray-900 dark:text-gray-100 text-base">Análise da Dúvida</h3>
+    <p>[Parágrafo explicativo e objetivo]</p>
+  </div>
+  <div class="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-md">
+    <h4 class="font-semibold text-gray-700 dark:text-gray-300 mb-1">Pontos Principais:</h4>
+    <ul class="list-disc pl-5 space-y-1">
+      <li>[Ponto 1]</li>
+      <li>[Ponto 2]</li>
+    </ul>
+  </div>
+  <div>
+    <h4 class="font-semibold text-gray-900 dark:text-gray-100 mb-1">Conclusão</h4>
+    <p>[Resumo final da resposta]</p>
+  </div>
+</div>`,
+  'Mais lúdico': `<div class="space-y-3 text-sm">
+  <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg p-4">
+    <h3 class="text-blue-800 dark:text-blue-300 font-bold flex items-center gap-2 text-base mb-2">
+      <span>🚀</span> A Grande Aventura
+    </h3>
+    <p class="text-blue-900 dark:text-blue-200 leading-relaxed">[Uma historinha ou analogia divertida explicando o conceito]</p>
+  </div>
+  <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-lg p-4">
+    <h3 class="text-amber-800 dark:text-amber-300 font-bold flex items-center gap-2 mb-2">
+      <span>💡</span> Pílula de Sabedoria
+    </h3>
+    <p class="text-amber-900 dark:text-amber-200">[A explicação técnica resumida de forma simples]</p>
+  </div>
+  <div class="bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800 rounded-lg p-4">
+    <h3 class="text-green-800 dark:text-green-300 font-bold flex items-center gap-2 mb-2">
+      <span>🎯</span> Sua Missão
+    </h3>
+    <p class="text-green-900 dark:text-green-200">[Um pequeno desafio prático ou passo a passo para aplicar o conhecimento]</p>
+  </div>
+</div>`,
+  'Mais direto': `<div class="text-sm border-l-4 border-gray-400 pl-4 py-1 space-y-3">
+  <div>
+    <h3 class="font-bold text-gray-900 dark:text-gray-100 uppercase text-xs tracking-wider">O Fato</h3>
+    <p class="text-gray-700 dark:text-gray-300">[A resposta nua e crua, em uma ou duas frases]</p>
+  </div>
+  <div>
+    <h3 class="font-bold text-gray-900 dark:text-gray-100 uppercase text-xs tracking-wider">A Lógica</h3>
+    <p class="text-gray-700 dark:text-gray-300">[A justificativa rápida e direta]</p>
+  </div>
+  <div>
+    <h3 class="font-bold text-gray-900 dark:text-gray-100 uppercase text-xs tracking-wider">Ação Recomendada</h3>
+    <p class="text-gray-700 dark:text-gray-300">[O que fazer em seguida, sem enrolação]</p>
+  </div>
+</div>`
 };
 
 // ─── Activity / Simulado ──────────────────────────────────────────────────────
