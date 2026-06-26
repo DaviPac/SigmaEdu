@@ -3,8 +3,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, Loader2, Glasses, Settings2 } from 'lucide-react';
 import { AGENTS, ACOMPANHAMENTO_CONFIG, ACOMPANHAMENTO_FORMATS } from '@/lib/mock/ava-data';
-import { getCurrentModelConfig } from '@/lib/utils/model-config';
 import type { ChatMessage } from '@/lib/mock/ava-data';
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+
 
 const agent = AGENTS.find((a) => a.id === 'acompanhamento')!;
 
@@ -124,16 +126,11 @@ export default function AcompanhamentoScreen() {
     if (personalityType === 'Personalizar professor') {
       setIsGeneratingFormat(true);
       try {
-        const cfg = getCurrentModelConfig();
-        const res = await fetch('/api/ava/format-generator', {
+        const res = await fetch(`${BACKEND_URL}/ava/format-generator`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             personality: customPersonality,
-            model: cfg.modelString,
-            apiKey: cfg.apiKey,
-            baseUrl: cfg.baseUrl,
-            providerType: cfg.providerType,
           }),
         });
         const data = await res.json();
@@ -178,10 +175,9 @@ export default function AcompanhamentoScreen() {
     setError(null);
 
     try {
-      const cfg = getCurrentModelConfig();
       const formatTemplate = localStorage.getItem('avaAcompanhamento_format') || undefined;
 
-      const res = await fetch('/api/ava/acompanhamento', {
+      const res = await fetch(`${BACKEND_URL}/ava/acompanhamento`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -189,10 +185,6 @@ export default function AcompanhamentoScreen() {
           history: messages,
           personality: currentPersonality,
           formatTemplate,
-          model: cfg.modelString,
-          apiKey: cfg.apiKey,
-          baseUrl: cfg.baseUrl,
-          providerType: cfg.providerType,
         }),
       });
 
