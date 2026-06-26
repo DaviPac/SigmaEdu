@@ -184,12 +184,10 @@ function QuizScreen({
     return () => clearInterval(id);
   }, [done]);
 
-  // Reset hint when question changes
-  useEffect(() => { setShowHint(false); }, [idx]);
-
   const handleNext = () => {
     if (!isLast) {
       setIdx((i) => i + 1);
+      setShowHint(false);
     } else {
       setDone(true);
     }
