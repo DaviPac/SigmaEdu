@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import type { LearningStyleIconName } from '@/lib/mock/ava-data';
 
-export type AgentId = 'diagnostico' | 'avaliador' | 'pedagogico' | 'tutor';
+export type AgentId = 'diagnostico' | 'avaliador' | 'pedagogico' | 'tutor' | 'acompanhamento';
 
 export const AGENT_ICONS: Record<AgentId, LucideIcon> = {
   diagnostico: Activity,
