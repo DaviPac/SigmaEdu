@@ -64,4 +64,31 @@ test.describe('Agente Acompanhamento', () => {
     await expect(page.locator('text=Qual tipo de professor você prefere?')).not.toBeVisible();
     await expect(page.locator('text=Estilo: Pirata do Caribe')).toBeVisible();
   });
+
+  test('deve exibir fallback elegante quando ocorrer erro interno na API ou no LLM', async ({ page }) => {
+    // 1. Mockar a API para simular o comportamento de falha tratada pelo backend (200 OK com texto de erro)
+    await page.route('**/ava/acompanhamento', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          text: "Desculpe, ocorreu um erro interno e não consegui gerar sua resposta. Por favor, tente novamente em alguns instantes!"
+        })
+      });
+    });
+
+    await page.goto('/ava/acompanhamento');
+    
+    // Confirma estilo padrão
+    await page.locator('button', { hasText: 'Confirmar Estilo' }).click();
+
+    // Envia uma mensagem qualquer (ex: a palavra que causava erro)
+    const input = page.locator('textarea[placeholder="Digite sua dúvida sobre o desempenho..."]');
+    await input.fill('trigonometri');
+    await page.keyboard.press('Enter');
+
+    // Verifica se a mensagem de fallback foi renderizada no chat sem causar crash na tela
+    await expect(page.locator('text=Desculpe, ocorreu um erro interno e não consegui gerar sua resposta.')).toBeVisible();
+  });
 });
+
