@@ -325,7 +325,9 @@ export function CanvasToolbar({
                 ctrlBtn,
                 'w-7 h-6',
                 engineState === 'playing'
-                  ? sigmaMode ? 'text-[#1D9E75]' : 'text-violet-600 dark:text-violet-400'
+                  ? sigmaMode
+                    ? 'text-[#1D9E75]'
+                    : 'text-violet-600 dark:text-violet-400'
                   : 'text-gray-500 dark:text-gray-400',
               )}
               aria-label={engineState === 'playing' ? 'Pause' : 'Play'}
@@ -366,7 +368,9 @@ export function CanvasToolbar({
                       ctrlBtn,
                       'w-8 h-6',
                       autoPlayLecture
-                        ? sigmaMode ? 'text-[#1D9E75]' : 'text-violet-600 dark:text-violet-400'
+                        ? sigmaMode
+                          ? 'text-[#1D9E75]'
+                          : 'text-violet-600 dark:text-violet-400'
                         : 'text-gray-500 dark:text-gray-400',
                     )}
                     aria-label="Auto-play"
@@ -391,14 +395,21 @@ export function CanvasToolbar({
               ctrlBtn,
               'w-6 h-6',
               whiteboardOpen
-                ? sigmaMode ? 'text-[#1D9E75]' : 'text-violet-600 dark:text-violet-400'
+                ? sigmaMode
+                  ? 'text-[#1D9E75]'
+                  : 'text-violet-600 dark:text-violet-400'
                 : 'text-gray-500 dark:text-gray-400',
             )}
             title={whiteboardOpen ? t('whiteboard.minimize') : t('whiteboard.open')}
           >
             <PencilLine className="w-3.5 h-3.5" />
             {!whiteboardOpen && whiteboardElementCount > 0 && (
-              <span className={cn('absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full', sigmaMode ? 'bg-[#1D9E75]' : 'bg-violet-500 dark:bg-violet-400')} />
+              <span
+                className={cn(
+                  'absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full',
+                  sigmaMode ? 'bg-[#1D9E75]' : 'bg-violet-500 dark:bg-violet-400',
+                )}
+              />
             )}
           </button>
         </div>
@@ -414,7 +425,9 @@ export function CanvasToolbar({
               ctrlBtn,
               'w-6 h-6',
               isPresenting
-                ? sigmaMode ? 'text-[#1D9E75]' : 'text-violet-600 dark:text-violet-400'
+                ? sigmaMode
+                  ? 'text-[#1D9E75]'
+                  : 'text-violet-600 dark:text-violet-400'
                 : 'text-gray-500 dark:text-gray-400',
             )}
             aria-label={presentationLabel}

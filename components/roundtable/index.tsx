@@ -792,9 +792,20 @@ export function Roundtable({
                 <div className="flex items-center gap-4 bg-white/70 dark:bg-black/60 backdrop-blur-xl rounded-full px-5 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] border border-gray-200/60 dark:border-white/10">
                   {/* Waveform bars */}
                   <div className="flex items-center gap-0.5 h-8">
-                    <VoiceWaveformBars barClassName={sigmaMode ? 'bg-[#1D9E75]/80' : 'bg-gradient-to-t from-purple-400 to-indigo-400'} />
+                    <VoiceWaveformBars
+                      barClassName={
+                        sigmaMode
+                          ? 'bg-[#1D9E75]/80'
+                          : 'bg-gradient-to-t from-purple-400 to-indigo-400'
+                      }
+                    />
                   </div>
-                  <span className={cn('text-[11px] font-semibold tracking-wider uppercase', sigmaMode ? 'text-[#1D9E75]' : 'text-purple-600 dark:text-purple-300')}>
+                  <span
+                    className={cn(
+                      'text-[11px] font-semibold tracking-wider uppercase',
+                      sigmaMode ? 'text-[#1D9E75]' : 'text-purple-600 dark:text-purple-300',
+                    )}
+                  >
                     {isProcessing ? t('roundtable.processing') : t('roundtable.listening')}
                   </span>
                   {/* Mic button */}
@@ -806,10 +817,22 @@ export function Roundtable({
                     className="relative group cursor-pointer bg-transparent border-none p-0"
                     onClick={handleToggleVoice}
                   >
-                    <div className={cn('relative w-12 h-12 rounded-full flex items-center justify-center group-hover:scale-105 transition-transform duration-300 border border-white/20', sigmaMode ? 'bg-[#1D9E75] shadow-[0_4px_20px_rgba(29,158,117,0.3)]' : 'bg-gradient-to-br from-purple-600 to-indigo-700 shadow-[0_4px_20px_rgba(147,51,234,0.3)]')}>
+                    <div
+                      className={cn(
+                        'relative w-12 h-12 rounded-full flex items-center justify-center group-hover:scale-105 transition-transform duration-300 border border-white/20',
+                        sigmaMode
+                          ? 'bg-[#1D9E75] shadow-[0_4px_20px_rgba(29,158,117,0.3)]'
+                          : 'bg-gradient-to-br from-purple-600 to-indigo-700 shadow-[0_4px_20px_rgba(147,51,234,0.3)]',
+                      )}
+                    >
                       <Mic className="w-5 h-5 text-white" />
                     </div>
-                    <div className={cn('absolute inset-0 rounded-full border-2 opacity-40 animate-[ping_2s_ease-in-out_infinite]', sigmaMode ? 'border-[#1D9E75]' : 'border-purple-500')} />
+                    <div
+                      className={cn(
+                        'absolute inset-0 rounded-full border-2 opacity-40 animate-[ping_2s_ease-in-out_infinite]',
+                        sigmaMode ? 'border-[#1D9E75]' : 'border-purple-500',
+                      )}
+                    />
                   </button>
                 </div>
               </motion.div>
@@ -853,7 +876,10 @@ export function Roundtable({
                       key={delay}
                       animate={{ opacity: [0.3, 1, 0.3] }}
                       transition={{ repeat: Infinity, duration: 1.2, delay }}
-                      className={cn('w-1.5 h-1.5 rounded-full', sigmaMode ? 'bg-[#1D9E75]' : 'bg-purple-400')}
+                      className={cn(
+                        'w-1.5 h-1.5 rounded-full',
+                        sigmaMode ? 'bg-[#1D9E75]' : 'bg-purple-400',
+                      )}
                     />
                   ))}
                 </div>
@@ -943,7 +969,10 @@ export function Roundtable({
                               delay: i * 0.12,
                               ease: 'easeInOut',
                             }}
-                            className={cn('w-[3px] h-[3px] rounded-full', sigmaMode ? 'bg-[#1D9E75]' : 'bg-purple-400')}
+                            className={cn(
+                              'w-[3px] h-[3px] rounded-full',
+                              sigmaMode ? 'bg-[#1D9E75]' : 'bg-purple-400',
+                            )}
                           />
                         ))}
                       </div>
@@ -966,7 +995,9 @@ export function Roundtable({
                           !asrEnabled
                             ? 'text-gray-500 cursor-not-allowed'
                             : isVoiceOpen
-                              ? sigmaMode ? 'bg-[#1D9E75] text-white' : 'bg-purple-600 text-white'
+                              ? sigmaMode
+                                ? 'bg-[#1D9E75] text-white'
+                                : 'bg-purple-600 text-white'
                               : 'text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white hover:bg-gray-200/50 dark:hover:bg-white/10',
                         )}
                       >
@@ -981,7 +1012,9 @@ export function Roundtable({
                         className={cn(
                           'w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-95',
                           isInputOpen
-                            ? sigmaMode ? 'bg-[#1D9E75] text-white' : 'bg-purple-600 text-white'
+                            ? sigmaMode
+                              ? 'bg-[#1D9E75] text-white'
+                              : 'bg-purple-600 text-white'
                             : 'text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white hover:bg-gray-200/50 dark:hover:bg-white/10',
                         )}
                       >
@@ -1013,8 +1046,12 @@ export function Roundtable({
                           isCueUser
                             ? 'border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.4)] animate-pulse'
                             : activeRole === 'user' || isInputOpen
-                              ? sigmaMode ? 'border-[#1D9E75] shadow-[0_0_6px_rgba(29,158,117,0.3)]' : 'border-purple-500 shadow-[0_0_6px_rgba(168,85,247,0.3)]'
-                              : sigmaMode ? 'border-gray-300/40 dark:border-white/20 group-hover:border-[#1D9E75]/50' : 'border-gray-300/40 dark:border-white/20 group-hover:border-purple-400/50',
+                              ? sigmaMode
+                                ? 'border-[#1D9E75] shadow-[0_0_6px_rgba(29,158,117,0.3)]'
+                                : 'border-purple-500 shadow-[0_0_6px_rgba(168,85,247,0.3)]'
+                              : sigmaMode
+                                ? 'border-gray-300/40 dark:border-white/20 group-hover:border-[#1D9E75]/50'
+                                : 'border-gray-300/40 dark:border-white/20 group-hover:border-purple-400/50',
                         )}
                       />
                       <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-800 overflow-hidden relative z-10 text-lg">
@@ -1083,10 +1120,23 @@ export function Roundtable({
           )}
         >
           {/* Decorative Element (Top) */}
-          <div className={cn('absolute top-0 inset-x-0 h-16 bg-gradient-to-b to-transparent pointer-events-none', sigmaMode ? 'from-[#E1F5EE]/50' : 'from-purple-50/50 dark:from-purple-900/10')} />
+          <div
+            className={cn(
+              'absolute top-0 inset-x-0 h-16 bg-gradient-to-b to-transparent pointer-events-none',
+              sigmaMode ? 'from-[#E1F5EE]/50' : 'from-purple-50/50 dark:from-purple-900/10',
+            )}
+          />
           <div className="absolute top-3 inset-x-0 flex flex-col items-center justify-center gap-1 opacity-10 pointer-events-none">
-            <BookOpen size={20} className={sigmaMode ? 'text-[#0F6E56]' : 'text-purple-900 dark:text-purple-100'} />
-            <div className={cn('w-8 h-0.5 rounded-full', sigmaMode ? 'bg-[#0F6E56]' : 'bg-purple-900 dark:bg-purple-100')} />
+            <BookOpen
+              size={20}
+              className={sigmaMode ? 'text-[#0F6E56]' : 'text-purple-900 dark:text-purple-100'}
+            />
+            <div
+              className={cn(
+                'w-8 h-0.5 rounded-full',
+                sigmaMode ? 'bg-[#0F6E56]' : 'bg-purple-900 dark:bg-purple-100',
+              )}
+            />
           </div>
 
           {/* Main Content */}
@@ -1263,7 +1313,14 @@ export function Roundtable({
                   onClick={(e) => e.stopPropagation()}
                   className="absolute inset-x-6 bottom-4 z-20 flex items-center justify-end"
                 >
-                  <div className={cn('relative w-fit max-w-[85%] sm:max-w-[65%] min-w-[200px] sm:min-w-[300px] bg-white/90 dark:bg-gray-800/90 backdrop-blur-md p-2 pr-2 rounded-2xl rounded-br-none shadow-2xl flex items-end gap-2', sigmaMode ? 'border border-[#1D9E75]/30 ring-1 ring-[#1D9E75]/10' : 'border border-purple-200 dark:border-purple-700 ring-1 ring-purple-100/50 dark:ring-purple-800/50')}>
+                  <div
+                    className={cn(
+                      'relative w-fit max-w-[85%] sm:max-w-[65%] min-w-[200px] sm:min-w-[300px] bg-white/90 dark:bg-gray-800/90 backdrop-blur-md p-2 pr-2 rounded-2xl rounded-br-none shadow-2xl flex items-end gap-2',
+                      sigmaMode
+                        ? 'border border-[#1D9E75]/30 ring-1 ring-[#1D9E75]/10'
+                        : 'border border-purple-200 dark:border-purple-700 ring-1 ring-purple-100/50 dark:ring-purple-800/50',
+                    )}
+                  >
                     <div className="pl-4 flex-1 py-1 min-w-0">
                       <textarea
                         value={inputValue}
@@ -1319,13 +1376,31 @@ export function Roundtable({
                   className="absolute right-4 top-1/2 -translate-y-1/2 z-30 flex items-center gap-4 pr-2 pointer-events-none"
                 >
                   <div className="flex flex-col-reverse items-end gap-1 mr-[-10px] relative z-20">
-                    <div className={cn('flex items-center gap-0.5 h-8 px-2 py-1.5 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-xl shadow-sm', sigmaMode ? 'border border-[#1D9E75]/20' : 'border border-purple-100 dark:border-purple-800')}>
-                      <VoiceWaveformBars barClassName={sigmaMode ? 'bg-[#1D9E75]/80' : 'bg-gradient-to-t from-purple-500 to-indigo-600 dark:from-purple-400 dark:to-indigo-500'} />
+                    <div
+                      className={cn(
+                        'flex items-center gap-0.5 h-8 px-2 py-1.5 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-xl shadow-sm',
+                        sigmaMode
+                          ? 'border border-[#1D9E75]/20'
+                          : 'border border-purple-100 dark:border-purple-800',
+                      )}
+                    >
+                      <VoiceWaveformBars
+                        barClassName={
+                          sigmaMode
+                            ? 'bg-[#1D9E75]/80'
+                            : 'bg-gradient-to-t from-purple-500 to-indigo-600 dark:from-purple-400 dark:to-indigo-500'
+                        }
+                      />
                     </div>
                     <motion.div
                       initial={{ opacity: 0, x: 10 }}
                       animate={{ opacity: 1, x: 0 }}
-                      className={cn('text-[10px] font-bold tracking-widest uppercase bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm px-2 py-0.5 rounded-full shadow-sm mr-1', sigmaMode ? 'text-[#1D9E75] border border-[#1D9E75]/20' : 'text-purple-600 dark:text-purple-400 border border-purple-100/50 dark:border-purple-800/50')}
+                      className={cn(
+                        'text-[10px] font-bold tracking-widest uppercase bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm px-2 py-0.5 rounded-full shadow-sm mr-1',
+                        sigmaMode
+                          ? 'text-[#1D9E75] border border-[#1D9E75]/20'
+                          : 'text-purple-600 dark:text-purple-400 border border-purple-100/50 dark:border-purple-800/50',
+                      )}
                     >
                       {isProcessing ? t('roundtable.processing') : t('roundtable.listening')}
                     </motion.div>
@@ -1335,12 +1410,36 @@ export function Roundtable({
                     className="pointer-events-auto relative group cursor-pointer"
                     onClick={handleToggleVoice}
                   >
-                    <div className={cn('relative w-16 h-16 rounded-full flex items-center justify-center z-20 group-hover:scale-105 transition-transform duration-300 border border-white/20 dark:border-white/10', sigmaMode ? 'bg-[#1D9E75] shadow-[0_4px_20px_rgba(29,158,117,0.3)]' : 'bg-gradient-to-br from-purple-600 to-indigo-700 dark:from-purple-500 dark:to-indigo-600 shadow-[0_4px_20px_rgba(147,51,234,0.3)]')}>
+                    <div
+                      className={cn(
+                        'relative w-16 h-16 rounded-full flex items-center justify-center z-20 group-hover:scale-105 transition-transform duration-300 border border-white/20 dark:border-white/10',
+                        sigmaMode
+                          ? 'bg-[#1D9E75] shadow-[0_4px_20px_rgba(29,158,117,0.3)]'
+                          : 'bg-gradient-to-br from-purple-600 to-indigo-700 dark:from-purple-500 dark:to-indigo-600 shadow-[0_4px_20px_rgba(147,51,234,0.3)]',
+                      )}
+                    >
                       <Mic className="w-6 h-6 text-white" />
                     </div>
-                    <div className={cn('absolute inset-0 rounded-full border-2 opacity-40 animate-[ping_2s_ease-in-out_infinite] z-10', sigmaMode ? 'border-[#1D9E75]' : 'border-purple-500 dark:border-purple-400')} />
-                    <div className={cn('absolute inset-0 rounded-full border opacity-20 animate-[ping_3s_ease-in-out_infinite_0.5s] z-10', sigmaMode ? 'border-[#1D9E75]/60' : 'border-indigo-400 dark:border-indigo-300')} />
-                    <div className={cn('absolute inset-0 blur-2xl opacity-20 group-hover:opacity-40 transition-opacity z-0', sigmaMode ? 'bg-[#1D9E75]' : 'bg-purple-600 dark:bg-purple-500')} />
+                    <div
+                      className={cn(
+                        'absolute inset-0 rounded-full border-2 opacity-40 animate-[ping_2s_ease-in-out_infinite] z-10',
+                        sigmaMode ? 'border-[#1D9E75]' : 'border-purple-500 dark:border-purple-400',
+                      )}
+                    />
+                    <div
+                      className={cn(
+                        'absolute inset-0 rounded-full border opacity-20 animate-[ping_3s_ease-in-out_infinite_0.5s] z-10',
+                        sigmaMode
+                          ? 'border-[#1D9E75]/60'
+                          : 'border-indigo-400 dark:border-indigo-300',
+                      )}
+                    />
+                    <div
+                      className={cn(
+                        'absolute inset-0 blur-2xl opacity-20 group-hover:opacity-40 transition-opacity z-0',
+                        sigmaMode ? 'bg-[#1D9E75]' : 'bg-purple-600 dark:bg-purple-500',
+                      )}
+                    />
                   </div>
                 </motion.div>
               )}
@@ -1361,7 +1460,10 @@ export function Roundtable({
                         key={delay}
                         animate={{ opacity: [0.3, 1, 0.3] }}
                         transition={{ repeat: Infinity, duration: 1.2, delay }}
-                        className={cn('w-1.5 h-1.5 rounded-full', sigmaMode ? 'bg-[#1D9E75]' : 'bg-purple-500')}
+                        className={cn(
+                          'w-1.5 h-1.5 rounded-full',
+                          sigmaMode ? 'bg-[#1D9E75]' : 'bg-purple-500',
+                        )}
                       />
                     ))}
                   </div>
@@ -1390,7 +1492,9 @@ export function Roundtable({
                         'absolute w-24 h-24 rounded-full blur-2xl',
                         asrEnabled
                           ? 'bg-amber-400/[0.08] dark:bg-amber-500/[0.06]'
-                          : sigmaMode ? 'bg-[#1D9E75]/[0.08]' : 'bg-purple-400/[0.08] dark:bg-purple-500/[0.06]',
+                          : sigmaMode
+                            ? 'bg-[#1D9E75]/[0.08]'
+                            : 'bg-purple-400/[0.08] dark:bg-purple-500/[0.06]',
                       )}
                     />
 
@@ -1406,7 +1510,9 @@ export function Roundtable({
                         'absolute w-11 h-11 rounded-full border',
                         asrEnabled
                           ? 'border-amber-400/50 dark:border-amber-500/35'
-                          : sigmaMode ? 'border-[#1D9E75]/50' : 'border-purple-400/50 dark:border-purple-500/35',
+                          : sigmaMode
+                            ? 'border-[#1D9E75]/50'
+                            : 'border-purple-400/50 dark:border-purple-500/35',
                       )}
                     />
                     {/* Expanding ripple 2 */}
@@ -1422,7 +1528,9 @@ export function Roundtable({
                         'absolute w-11 h-11 rounded-full border',
                         asrEnabled
                           ? 'border-amber-300/40 dark:border-amber-400/25'
-                          : sigmaMode ? 'border-[#1D9E75]/30' : 'border-purple-300/40 dark:border-purple-400/25',
+                          : sigmaMode
+                            ? 'border-[#1D9E75]/30'
+                            : 'border-purple-300/40 dark:border-purple-400/25',
                       )}
                     />
 
@@ -1491,7 +1599,12 @@ export function Roundtable({
                             delay: i * 0.12,
                             ease: 'easeInOut',
                           }}
-                          className={cn('w-[2.5px] h-full origin-center rounded-full', sigmaMode ? 'bg-[#1D9E75]/60' : 'bg-purple-400/60 dark:bg-purple-500/50')}
+                          className={cn(
+                            'w-[2.5px] h-full origin-center rounded-full',
+                            sigmaMode
+                              ? 'bg-[#1D9E75]/60'
+                              : 'bg-purple-400/60 dark:bg-purple-500/50',
+                          )}
                         />
                       ))}
                     </div>
@@ -1509,7 +1622,9 @@ export function Roundtable({
                       'text-[10px] font-medium tracking-wider',
                       asrEnabled
                         ? 'text-amber-600/70 dark:text-amber-400/60'
-                        : sigmaMode ? 'text-[#1D9E75]/70' : 'text-purple-600/70 dark:text-purple-400/60',
+                        : sigmaMode
+                          ? 'text-[#1D9E75]/70'
+                          : 'text-purple-600/70 dark:text-purple-400/60',
                     )}
                   >
                     {t('roundtable.yourTurn')}
@@ -1597,10 +1712,14 @@ export function Roundtable({
                                 className={cn(
                                   'w-6 h-6 rounded-full overflow-hidden border-2 shadow-sm',
                                   bubbleRole === 'user'
-                                    ? sigmaMode ? 'border-[#1D9E75]/60' : 'border-purple-400 dark:border-purple-500'
+                                    ? sigmaMode
+                                      ? 'border-[#1D9E75]/60'
+                                      : 'border-purple-400 dark:border-purple-500'
                                     : bubbleRole === 'agent'
                                       ? 'border-blue-300 dark:border-blue-600'
-                                      : sigmaMode ? 'border-[#1D9E75]/30' : 'border-purple-200 dark:border-purple-700',
+                                      : sigmaMode
+                                        ? 'border-[#1D9E75]/30'
+                                        : 'border-purple-200 dark:border-purple-700',
                                 )}
                               >
                                 <AvatarDisplay src={bubbleAvatar} alt={bubbleName} />
@@ -1646,7 +1765,9 @@ export function Roundtable({
                                 'w-1.5 h-1.5 rounded-full',
                                 isAgentLoading
                                   ? 'bg-blue-400 dark:bg-blue-500'
-                                  : sigmaMode ? 'bg-[#1D9E75]' : 'bg-purple-400 dark:bg-purple-500',
+                                  : sigmaMode
+                                    ? 'bg-[#1D9E75]'
+                                    : 'bg-purple-400 dark:bg-purple-500',
                               )}
                             />
                             <motion.div
@@ -1660,7 +1781,9 @@ export function Roundtable({
                                 'w-1.5 h-1.5 rounded-full',
                                 isAgentLoading
                                   ? 'bg-blue-400 dark:bg-blue-500'
-                                  : sigmaMode ? 'bg-[#1D9E75]' : 'bg-purple-400 dark:bg-purple-500',
+                                  : sigmaMode
+                                    ? 'bg-[#1D9E75]'
+                                    : 'bg-purple-400 dark:bg-purple-500',
                               )}
                             />
                             <motion.div
@@ -1674,7 +1797,9 @@ export function Roundtable({
                                 'w-1.5 h-1.5 rounded-full',
                                 isAgentLoading
                                   ? 'bg-blue-400 dark:bg-blue-500'
-                                  : sigmaMode ? 'bg-[#1D9E75]' : 'bg-purple-400 dark:bg-purple-500',
+                                  : sigmaMode
+                                    ? 'bg-[#1D9E75]'
+                                    : 'bg-purple-400 dark:bg-purple-500',
                               )}
                             />
                           </div>
@@ -1693,9 +1818,12 @@ export function Roundtable({
                         !isBubbleLoading &&
                         (() => {
                           const btnState = playbackView?.buttonState ?? 'none';
-                          const barsColor = bubbleRole === 'agent'
-                            ? 'bg-blue-500'
-                            : sigmaMode ? 'bg-[#1D9E75]' : 'bg-purple-500';
+                          const barsColor =
+                            bubbleRole === 'agent'
+                              ? 'bg-blue-500'
+                              : sigmaMode
+                                ? 'bg-[#1D9E75]'
+                                : 'bg-purple-500';
                           const accentHoverBg = sigmaMode
                             ? 'hover:bg-[#E1F5EE] group-hover/bubble:bg-[#E1F5EE]'
                             : 'hover:bg-purple-100 dark:hover:bg-purple-900/50 group-hover/bubble:bg-purple-100 dark:group-hover/bubble:bg-purple-900/50';
@@ -1707,26 +1835,60 @@ export function Roundtable({
 
                           if (btnState === 'play') {
                             return (
-                              <div className={cn('absolute right-2.5 bottom-2.5 p-1.5 rounded-full bg-gray-50/80 dark:bg-gray-700/80 transition-all duration-300 cursor-pointer', accentHoverBg)}>
-                                <Play className={cn('w-3.5 h-3.5 text-gray-400 dark:text-gray-500 ml-0.5', accentHoverText)} />
+                              <div
+                                className={cn(
+                                  'absolute right-2.5 bottom-2.5 p-1.5 rounded-full bg-gray-50/80 dark:bg-gray-700/80 transition-all duration-300 cursor-pointer',
+                                  accentHoverBg,
+                                )}
+                              >
+                                <Play
+                                  className={cn(
+                                    'w-3.5 h-3.5 text-gray-400 dark:text-gray-500 ml-0.5',
+                                    accentHoverText,
+                                  )}
+                                />
                               </div>
                             );
                           }
 
                           if (btnState === 'restart') {
                             return (
-                              <div className={cn('absolute right-2.5 bottom-2.5 p-1.5 rounded-full bg-gray-50/80 dark:bg-gray-700/80 transition-all duration-300 cursor-pointer', accentHoverBg)}>
-                                <Repeat className={cn('w-3.5 h-3.5 text-gray-400 dark:text-gray-500', accentHoverText)} />
+                              <div
+                                className={cn(
+                                  'absolute right-2.5 bottom-2.5 p-1.5 rounded-full bg-gray-50/80 dark:bg-gray-700/80 transition-all duration-300 cursor-pointer',
+                                  accentHoverBg,
+                                )}
+                              >
+                                <Repeat
+                                  className={cn(
+                                    'w-3.5 h-3.5 text-gray-400 dark:text-gray-500',
+                                    accentHoverText,
+                                  )}
+                                />
                               </div>
                             );
                           }
 
                           // btnState === 'bars'
                           return (
-                            <div className={cn('absolute right-2.5 bottom-2.5 p-1.5 rounded-full bg-gray-50/80 dark:bg-gray-700/80 transition-all duration-300', sigmaMode ? 'group-hover/bubble:bg-[#E1F5EE]' : 'group-hover/bubble:bg-purple-100 dark:group-hover/bubble:bg-purple-900/50')}>
+                            <div
+                              className={cn(
+                                'absolute right-2.5 bottom-2.5 p-1.5 rounded-full bg-gray-50/80 dark:bg-gray-700/80 transition-all duration-300',
+                                sigmaMode
+                                  ? 'group-hover/bubble:bg-[#E1F5EE]'
+                                  : 'group-hover/bubble:bg-purple-100 dark:group-hover/bubble:bg-purple-900/50',
+                              )}
+                            >
                               {isDiscussionPaused ? (
                                 /* Paused: static Play icon */
-                                <Play className={cn('w-3.5 h-3.5 text-amber-500 dark:text-amber-400 ml-0.5', sigmaMode ? 'group-hover/bubble:text-[#1D9E75]' : 'group-hover/bubble:text-purple-600 dark:group-hover/bubble:text-purple-400')} />
+                                <Play
+                                  className={cn(
+                                    'w-3.5 h-3.5 text-amber-500 dark:text-amber-400 ml-0.5',
+                                    sigmaMode
+                                      ? 'group-hover/bubble:text-[#1D9E75]'
+                                      : 'group-hover/bubble:text-purple-600 dark:group-hover/bubble:text-purple-400',
+                                  )}
+                                />
                               ) : (
                                 <>
                                   {/* Breathing bars — visible by default, hidden on hover */}
@@ -1757,7 +1919,14 @@ export function Roundtable({
                                     />
                                   </div>
                                   {/* Pause icon on hover */}
-                                  <Pause className={cn('w-3.5 h-3.5 hidden group-hover/bubble:block', sigmaMode ? 'text-[#1D9E75]' : 'text-purple-600 dark:text-purple-400')} />
+                                  <Pause
+                                    className={cn(
+                                      'w-3.5 h-3.5 hidden group-hover/bubble:block',
+                                      sigmaMode
+                                        ? 'text-[#1D9E75]'
+                                        : 'text-purple-600 dark:text-purple-400',
+                                    )}
+                                  />
                                 </>
                               )}
                             </div>
@@ -1887,7 +2056,12 @@ export function Roundtable({
                             )}
                             {/* Loading indicator (Issue 5) */}
                             {isThinkingAgent && (
-                              <div className={cn('absolute inset-0 rounded-full border-2 border-t-transparent animate-spin z-20', sigmaMode ? 'border-[#1D9E75]' : 'border-purple-400')} />
+                              <div
+                                className={cn(
+                                  'absolute inset-0 rounded-full border-2 border-t-transparent animate-spin z-20',
+                                  sigmaMode ? 'border-[#1D9E75]' : 'border-purple-400',
+                                )}
+                              />
                             )}
                           </div>
                         </HoverCardTrigger>
@@ -1994,7 +2168,10 @@ export function Roundtable({
                           delay: i * 0.12,
                           ease: 'easeInOut',
                         }}
-                        className={cn('w-[4px] h-[4px] rounded-full', sigmaMode ? 'bg-[#1D9E75]' : 'bg-purple-400 dark:bg-purple-400')}
+                        className={cn(
+                          'w-[4px] h-[4px] rounded-full',
+                          sigmaMode ? 'bg-[#1D9E75]' : 'bg-purple-400 dark:bg-purple-400',
+                        )}
                       />
                     ))}
                   </div>
@@ -2086,7 +2263,9 @@ export function Roundtable({
                     className={cn(
                       'w-1.5 h-1.5 rounded-full',
                       isInputOpen || isCueUser
-                        ? sigmaMode ? 'bg-[#1D9E75] animate-pulse' : 'bg-purple-500 animate-pulse'
+                        ? sigmaMode
+                          ? 'bg-[#1D9E75] animate-pulse'
+                          : 'bg-purple-500 animate-pulse'
                         : 'bg-gray-300 dark:bg-gray-600',
                     )}
                   />

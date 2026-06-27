@@ -7,7 +7,6 @@ import type { ChatMessage } from '@/lib/mock/ava-data';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 
-
 const agent = AGENTS.find((a) => a.id === 'acompanhamento')!;
 
 /** Renderiza formatação markdown em linha para textos. */
@@ -18,8 +17,7 @@ function InlineMarkdown({ text }: { text: string }) {
       {tokens.map((tok, i) => {
         if (tok.startsWith('**') && tok.endsWith('**'))
           return <strong key={i}>{tok.slice(2, -2)}</strong>;
-        if (tok.startsWith('*') && tok.endsWith('*'))
-          return <em key={i}>{tok.slice(1, -1)}</em>;
+        if (tok.startsWith('*') && tok.endsWith('*')) return <em key={i}>{tok.slice(1, -1)}</em>;
         if (tok.startsWith('`') && tok.endsWith('`'))
           return (
             <code
@@ -58,7 +56,10 @@ function MiniMarkdown({ text }: { text: string }) {
             <ul key={bi} className="list-none space-y-0.5 pl-1">
               {lines.map((l, li) => (
                 <li key={li} className="flex gap-1.5 items-start text-[12px] leading-relaxed">
-                  <span className="mt-[3px] w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: agent.color }} />
+                  <span
+                    className="mt-[3px] w-1.5 h-1.5 rounded-full flex-shrink-0"
+                    style={{ background: agent.color }}
+                  />
                   <InlineMarkdown text={l.replace(/^[-*•]\s/, '').trim()} />
                 </li>
               ))}
@@ -107,11 +108,11 @@ export default function AcompanhamentoScreen() {
     const storedType = localStorage.getItem('avaAcompanhamento_type');
     const storedCustom = localStorage.getItem('avaAcompanhamento_custom');
     const storedConfigured = localStorage.getItem('avaAcompanhamento_configured');
-    
+
     if (storedType) setPersonalityType(storedType);
     if (storedCustom) setCustomPersonality(storedCustom);
     if (storedConfigured === 'true') setPersonalityConfigured(true);
-    
+
     setIsLoaded(true);
   }, []);
 
@@ -122,7 +123,7 @@ export default function AcompanhamentoScreen() {
   /** Define a personalidade escolhida pelo usuário, busca formato customizado se necessário e salva. */
   const handleConfirmPersonality = async () => {
     let format = '';
-    
+
     if (personalityType === 'Personalizar professor') {
       setIsGeneratingFormat(true);
       try {
@@ -161,7 +162,8 @@ export default function AcompanhamentoScreen() {
     localStorage.setItem('avaAcompanhamento_configured', 'false');
   };
 
-  const currentPersonality = personalityType === 'Personalizar professor' ? customPersonality : personalityType;
+  const currentPersonality =
+    personalityType === 'Personalizar professor' ? customPersonality : personalityType;
 
   /** Envia uma mensagem do usuário para o backend do agente. */
   const send = async (text?: string) => {
@@ -213,17 +215,26 @@ export default function AcompanhamentoScreen() {
     return (
       <div className="max-w-xl mx-auto pt-10">
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6 shadow-sm text-center">
-          <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: agent.bg, color: agent.color }}>
+          <div
+            className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4"
+            style={{ background: agent.bg, color: agent.color }}
+          >
             <Glasses className="w-6 h-6" />
           </div>
-          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Qual tipo de professor você prefere?</h2>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
+            Qual tipo de professor você prefere?
+          </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-            Configure a personalidade do seu agente de acompanhamento para que ele fale do jeito que você melhor aprende.
+            Configure a personalidade do seu agente de acompanhamento para que ele fale do jeito que
+            você melhor aprende.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6 text-left">
             {['Normal', 'Mais lúdico', 'Mais direto', 'Personalizar professor'].map((type) => (
-              <label key={type} className={`cursor-pointer border p-3 rounded-md flex items-center gap-3 transition-colors ${personalityType === type ? 'border-[#7E22CE] bg-[#F4EBFF] dark:bg-[rgba(126,34,206,0.1)]' : 'border-gray-200 dark:border-gray-700'}`}>
+              <label
+                key={type}
+                className={`cursor-pointer border p-3 rounded-md flex items-center gap-3 transition-colors ${personalityType === type ? 'border-[#7E22CE] bg-[#F4EBFF] dark:bg-[rgba(126,34,206,0.1)]' : 'border-gray-200 dark:border-gray-700'}`}
+              >
                 <input
                   type="radio"
                   name="personality"
@@ -250,7 +261,10 @@ export default function AcompanhamentoScreen() {
 
           <button
             onClick={handleConfirmPersonality}
-            disabled={(personalityType === 'Personalizar professor' && !customPersonality.trim()) || isGeneratingFormat}
+            disabled={
+              (personalityType === 'Personalizar professor' && !customPersonality.trim()) ||
+              isGeneratingFormat
+            }
             className="w-full py-2.5 rounded-md font-medium text-white transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
             style={{ background: agent.color }}
           >
@@ -278,7 +292,9 @@ export default function AcompanhamentoScreen() {
         </div>
         <div>
           <p className="text-[15px] font-medium text-gray-900 dark:text-gray-100">{agent.label}</p>
-          <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate max-w-[200px] sm:max-w-xs">{agent.description} • Estilo: {currentPersonality}</p>
+          <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate max-w-[200px] sm:max-w-xs">
+            {agent.description} • Estilo: {currentPersonality}
+          </p>
         </div>
         <div
           className="ml-auto flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium"
@@ -295,7 +311,10 @@ export default function AcompanhamentoScreen() {
         </button>
       </div>
 
-      <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 mb-3 flex flex-col gap-2.5" style={{ minHeight: 200 }}>
+      <div
+        className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 mb-3 flex flex-col gap-2.5"
+        style={{ minHeight: 200 }}
+      >
         {isEmpty && (
           <div className="flex-1 flex flex-col items-center justify-center py-6 text-center">
             <div
@@ -348,9 +367,7 @@ export default function AcompanhamentoScreen() {
           </div>
         )}
 
-        {error && (
-          <p className="text-[11px] text-red-500 dark:text-red-400 px-1">⚠ {error}</p>
-        )}
+        {error && <p className="text-[11px] text-red-500 dark:text-red-400 px-1">⚠ {error}</p>}
 
         <div ref={endRef} />
       </div>
@@ -362,7 +379,10 @@ export default function AcompanhamentoScreen() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              send();
+            }
           }}
           placeholder="Digite sua dúvida sobre o desempenho..."
           disabled={loading}

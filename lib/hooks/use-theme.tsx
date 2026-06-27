@@ -12,7 +12,13 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export function ThemeProvider({ children, forceTheme }: { children: ReactNode; forceTheme?: 'light' | 'dark' }) {
+export function ThemeProvider({
+  children,
+  forceTheme,
+}: {
+  children: ReactNode;
+  forceTheme?: 'light' | 'dark';
+}) {
   const [theme, setThemeState] = useState<Theme>('system');
   const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>('light');
 
