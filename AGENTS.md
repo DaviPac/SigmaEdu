@@ -86,3 +86,10 @@ O trabalho é orquestrado em sequência por três papéis essenciais:
 ---
 
 *Este arquivo serve como contrato de qualidade para todo o trabalho desenvolvido neste projeto.*
+
+
+### 🚨 Regra de Infraestrutura: Next.js + Playwright
+Toda vez que for configurar ou debugar testes E2E do Playwright em um projeto Next.js que utilize 'output: standalone', é **PROIBIDO** usar 'next start' ou 'pnpm start' no 'webServer' do Playwright. 
+O comando obrigatório deve ser:
+pnpm build && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/ && node .next/standalone/server.js
+Isso garante que os arquivos estáticos sejam servidos e a página não dê timeout esperando o CSS/JS.
