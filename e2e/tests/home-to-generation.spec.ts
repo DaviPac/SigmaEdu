@@ -6,7 +6,7 @@ import { createSettingsStorage } from '../fixtures/test-data/settings';
 const SETTINGS_STORAGE = createSettingsStorage();
 
 test.describe('Home → Generation', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, mockApi }) => {
     await page.addInitScript((settings) => {
       localStorage.setItem('settings-storage', settings);
     }, SETTINGS_STORAGE);
@@ -16,7 +16,6 @@ test.describe('Home → Generation', () => {
     const home = new HomePage(page);
     await home.goto();
 
-    // Core elements visible
     await expect(home.logo).toBeVisible();
     await expect(home.textarea).toBeVisible();
     await expect(home.enterButton).toBeDisabled();
