@@ -43,6 +43,13 @@ test.describe('#580 model-selection invariant', () => {
   test('State A: no usable provider → disabled generate + single Set-up affordance, no toast', async ({
     page,
   }) => {
+    await page.route('**/api/access-code/status', (route) =>
+      route.fulfill({
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled: false, authenticated: false }),
+      }),
+    );
     await page.route('**/api/server-providers', (route) =>
       route.fulfill({
         status: 200,
@@ -89,6 +96,13 @@ test.describe('#580 model-selection invariant', () => {
   test('State B: server-configured provider → concrete model auto-selected, generation enabled', async ({
     page,
   }) => {
+    await page.route('**/api/access-code/status', (route) =>
+      route.fulfill({
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled: false, authenticated: false }),
+      }),
+    );
     await page.route('**/api/server-providers', (route) =>
       route.fulfill({
         status: 200,

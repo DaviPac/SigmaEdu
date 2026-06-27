@@ -85,6 +85,20 @@ export class MockApi {
     });
   }
 
+  /**
+   * Mock the access-code status endpoint — disables the auth guard so the UI renders freely.
+   * Without this, the AccessCodeGuard component blocks the entire page on fetch error.
+   */
+  async mockAccessCodeStatus() {
+    await this.page.route('**/api/access-code/status', (route) => {
+      route.fulfill({
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled: false, authenticated: false }),
+      });
+    });
+  }
+
   /** Set up API mocks for the generation flow. Note: server-providers is already mocked by the base fixture. */
   async setupGenerationMocks(stageId?: string) {
     await this.mockSceneOutlinesStream();
