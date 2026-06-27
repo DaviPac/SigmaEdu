@@ -85,7 +85,9 @@ export default function AvaLoginPage() {
             >
               S
             </div>
-            <span className="text-base font-semibold text-gray-900 dark:text-gray-100">SigmaEdu</span>
+            <span className="text-base font-semibold text-gray-900 dark:text-gray-100">
+              SigmaEdu
+            </span>
           </div>
 
           {/* Mode tabs */}
@@ -112,7 +114,10 @@ export default function AvaLoginPage() {
               type="text"
               placeholder="Nome de usuário"
               value={username}
-              onChange={(e) => { setUsername(e.target.value); if (error) setError(''); }}
+              onChange={(e) => {
+                setUsername(e.target.value);
+                if (error) setError('');
+              }}
               disabled={loading || success}
               autoComplete="username"
               className={`w-full rounded-xl border bg-gray-50 dark:bg-gray-800 px-4 py-2.5 text-sm
@@ -126,7 +131,10 @@ export default function AvaLoginPage() {
                 type="password"
                 placeholder="Senha"
                 value={password}
-                onChange={(e) => { setPassword(e.target.value); if (error) setError(''); }}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (error) setError('');
+                }}
                 disabled={loading || success}
                 autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                 className={`w-full rounded-xl border bg-gray-50 dark:bg-gray-800 px-4 py-2.5 pr-12 text-sm
@@ -140,9 +148,11 @@ export default function AvaLoginPage() {
                 disabled={!username.trim() || !password || loading || success}
                 className={`absolute right-2 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center
                   justify-center rounded-lg transition-all duration-200
-                  ${username.trim() && password && !loading && !success
-                    ? 'bg-[#1D9E75] text-white hover:bg-[#189068] cursor-pointer'
-                    : 'text-gray-300 dark:text-gray-600 cursor-default'}`}
+                  ${
+                    username.trim() && password && !loading && !success
+                      ? 'bg-[#1D9E75] text-white hover:bg-[#189068] cursor-pointer'
+                      : 'text-gray-300 dark:text-gray-600 cursor-default'
+                  }`}
               >
                 {loading ? (
                   <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
@@ -179,17 +189,19 @@ export default function AvaLoginPage() {
               type="submit"
               disabled={!username.trim() || !password || loading || success}
               className={`w-full py-2.5 rounded-xl text-sm font-medium transition-all duration-200
-                ${username.trim() && password && !loading && !success
-                  ? 'bg-[#1D9E75] text-white hover:bg-[#189068] cursor-pointer'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-default'}`}
+                ${
+                  username.trim() && password && !loading && !success
+                    ? 'bg-[#1D9E75] text-white hover:bg-[#189068] cursor-pointer'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-default'
+                }`}
             >
               {loading
                 ? 'Aguarde...'
                 : success
-                ? 'Redirecionando...'
-                : mode === 'login'
-                ? 'Entrar'
-                : 'Criar conta'}
+                  ? 'Redirecionando...'
+                  : mode === 'login'
+                    ? 'Entrar'
+                    : 'Criar conta'}
             </button>
           </form>
 

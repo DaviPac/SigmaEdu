@@ -15,7 +15,14 @@ import { useAgentRegistry } from '@/lib/orchestration/registry/store';
 import { getCurrentModelConfig } from '@/lib/utils/model-config';
 import { createLogger } from '@/lib/logger';
 import { cn } from '@/lib/utils';
-import { LESSONS, ENEM_LESSONS, SUBJECTS, type Lesson, type EnemLesson, type Subject } from '@/lib/mock/ava-data';
+import {
+  LESSONS,
+  ENEM_LESSONS,
+  SUBJECTS,
+  type Lesson,
+  type EnemLesson,
+  type Subject,
+} from '@/lib/mock/ava-data';
 import {
   ArrowLeft,
   AlertCircle,
@@ -60,7 +67,9 @@ function SigmaTopbar({
       <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
         <span>{subjectName}</span>
         <ChevronRight className="w-3 h-3 text-gray-400 dark:text-gray-600" />
-        <span className="text-gray-900 dark:text-gray-100 font-medium truncate max-w-[240px]">{screenName}</span>
+        <span className="text-gray-900 dark:text-gray-100 font-medium truncate max-w-[240px]">
+          {screenName}
+        </span>
       </div>
 
       <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
@@ -85,22 +94,25 @@ const STEPS: { id: StepId; label: string }[] = [
 ];
 
 const SUBJECT_ICONS: Record<string, LucideIcon> = {
-  matematica:  Calculator,
-  portugues:   BookOpen,
-  ciencias:    FlaskConical,
-  historia:    History,
-  geografia:   Globe,
-  ingles:      Languages,
-  'enem-mat':  Calculator,
-  'enem-nat':  FlaskConical,
-  'enem-red':  BookOpen,
-  'enem-hum':  History,
+  matematica: Calculator,
+  portugues: BookOpen,
+  ciencias: FlaskConical,
+  historia: History,
+  geografia: Globe,
+  ingles: Languages,
+  'enem-mat': Calculator,
+  'enem-nat': FlaskConical,
+  'enem-red': BookOpen,
+  'enem-hum': History,
   'enem-ling': Languages,
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-type AnyLesson = Pick<Lesson | EnemLesson, 'id' | 'subjectId' | 'title' | 'description' | 'durationMin' | 'topics'>;
+type AnyLesson = Pick<
+  Lesson | EnemLesson,
+  'id' | 'subjectId' | 'title' | 'description' | 'durationMin' | 'topics'
+>;
 
 function buildRequirement(lesson: AnyLesson, subject: Subject): string {
   if (subject.grade === 'ENEM 2025') {
@@ -238,9 +250,7 @@ export default function AvaLessonPage() {
   const lessonId = params?.lessonId as string;
 
   const lesson: AnyLesson | null =
-    LESSONS.find((l) => l.id === lessonId) ??
-    ENEM_LESSONS.find((l) => l.id === lessonId) ??
-    null;
+    LESSONS.find((l) => l.id === lessonId) ?? ENEM_LESSONS.find((l) => l.id === lessonId) ?? null;
   const subject = lesson ? (SUBJECTS.find((s) => s.id === lesson.subjectId) ?? null) : null;
   const backUrl = subject?.grade === 'ENEM 2025' ? '/ava/aulas' : '/ava';
 
@@ -446,8 +456,12 @@ export default function AvaLessonPage() {
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center" style={{ maxWidth: 320 }}>
             <AlertCircle className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-            <p className="text-[15px] font-medium text-gray-700 dark:text-gray-200 mb-1">Aula não encontrada</p>
-            <p className="text-[13px] text-gray-400 dark:text-gray-500 mb-5">O ID da aula não corresponde a nenhum conteúdo disponível.</p>
+            <p className="text-[15px] font-medium text-gray-700 dark:text-gray-200 mb-1">
+              Aula não encontrada
+            </p>
+            <p className="text-[13px] text-gray-400 dark:text-gray-500 mb-5">
+              O ID da aula não corresponde a nenhum conteúdo disponível.
+            </p>
             <button
               onClick={() => router.push(backUrl)}
               className="inline-flex items-center gap-1.5 text-sm text-white px-4 py-2 rounded-md font-medium hover:opacity-90 transition-opacity"
@@ -504,8 +518,12 @@ export default function AvaLessonPage() {
             >
               <AlertCircle className="w-7 h-7" style={{ color: '#A32D2D' }} />
             </div>
-            <p className="text-[15px] font-medium text-gray-900 dark:text-gray-100 mb-1">Erro ao preparar a aula</p>
-            <p className="text-[13px] text-gray-500 dark:text-gray-400 mb-5 leading-relaxed">{error}</p>
+            <p className="text-[15px] font-medium text-gray-900 dark:text-gray-100 mb-1">
+              Erro ao preparar a aula
+            </p>
+            <p className="text-[13px] text-gray-500 dark:text-gray-400 mb-5 leading-relaxed">
+              {error}
+            </p>
             <div className="flex gap-2 justify-center">
               <button
                 onClick={() => router.push(backUrl)}
@@ -537,17 +555,22 @@ export default function AvaLessonPage() {
 
             {/* Lesson meta */}
             <div className="text-center mb-6">
-              <p className="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase mb-1" style={{ letterSpacing: '.08em' }}>
+              <p
+                className="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase mb-1"
+                style={{ letterSpacing: '.08em' }}
+              >
                 {subject.name} · {subject.grade}
               </p>
-              <p className="text-[15px] font-medium text-gray-900 dark:text-gray-100 mb-0.5">{lesson.title}</p>
+              <p className="text-[15px] font-medium text-gray-900 dark:text-gray-100 mb-0.5">
+                {lesson.title}
+              </p>
               <p className="text-[12px] text-gray-400 dark:text-gray-500">{subject.teacher}</p>
             </div>
 
             {/* Steps */}
             <div className="rounded-lg overflow-hidden bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
               {STEPS.map((s, idx) => {
-                const isDone    = idx < stepIdx;
+                const isDone = idx < stepIdx;
                 const isCurrent = idx === stepIdx;
                 return (
                   <div

@@ -262,10 +262,14 @@ export const ChatArea = forwardRef<ChatAreaRef, ChatAreaProps>(
                 : 'hover:bg-purple-400/30 dark:hover:bg-purple-600/30 active:bg-purple-500/40 dark:active:bg-purple-500/40',
             )}
           >
-            <div className={cn(
-              'absolute left-0.5 top-1/2 -translate-y-1/2 w-0.5 h-8 rounded-full bg-gray-300 dark:bg-gray-600 transition-colors',
-              sigmaMode ? 'group-hover:bg-[#1D9E75]' : 'group-hover:bg-purple-400 dark:group-hover:bg-purple-500',
-            )} />
+            <div
+              className={cn(
+                'absolute left-0.5 top-1/2 -translate-y-1/2 w-0.5 h-8 rounded-full bg-gray-300 dark:bg-gray-600 transition-colors',
+                sigmaMode
+                  ? 'group-hover:bg-[#1D9E75]'
+                  : 'group-hover:bg-purple-400 dark:group-hover:bg-purple-500',
+              )}
+            />
           </div>
         )}
 

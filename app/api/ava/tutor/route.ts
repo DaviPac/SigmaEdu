@@ -69,10 +69,6 @@ export async function POST(req: NextRequest) {
     return apiSuccess({ text: result.text });
   } catch (error) {
     log.error('Tutor failed:', error);
-    return apiError(
-      'INTERNAL_ERROR',
-      500,
-      error instanceof Error ? error.message : 'Erro interno',
-    );
+    return apiError('INTERNAL_ERROR', 500, error instanceof Error ? error.message : 'Erro interno');
   }
 }

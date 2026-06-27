@@ -150,7 +150,8 @@ export function Header({
             <div className="relative" ref={exportRef}>
               <button
                 onClick={() => {
-                  if (canExport && !isExporting && !isExportingZip) setExportMenuOpen(!exportMenuOpen);
+                  if (canExport && !isExporting && !isExportingZip)
+                    setExportMenuOpen(!exportMenuOpen);
                 }}
                 disabled={!canExport || isExporting || isExportingZip}
                 className={cn(
@@ -172,21 +173,30 @@ export function Header({
                   style={{ border: `0.5px solid ${isDark ? '#374151' : '#e5e7eb'}` }}
                 >
                   <button
-                    onClick={() => { setExportMenuOpen(false); exportPPTX(); }}
+                    onClick={() => {
+                      setExportMenuOpen(false);
+                      exportPPTX();
+                    }}
                     className="w-full px-4 py-2.5 text-left text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
                   >
                     <FileDown className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0" />
                     {t('export.pptx')}
                   </button>
                   <button
-                    onClick={() => { setExportMenuOpen(false); exportResourcePack(); }}
+                    onClick={() => {
+                      setExportMenuOpen(false);
+                      exportResourcePack();
+                    }}
                     className="w-full px-4 py-2.5 text-left text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
                   >
                     <Package className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0" />
                     {t('export.resourcePack')}
                   </button>
                   <button
-                    onClick={() => { setExportMenuOpen(false); exportClassroomZip(); }}
+                    onClick={() => {
+                      setExportMenuOpen(false);
+                      exportClassroomZip();
+                    }}
                     disabled={isExportingZip}
                     className="w-full px-4 py-2.5 text-left text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
                   >
