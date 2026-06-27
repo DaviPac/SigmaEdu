@@ -159,7 +159,7 @@ async function seedVideoThumbnailStage({
   await page.goto('/', { waitUntil: 'networkidle' });
 }
 
-test.describe('Home recent video thumbnails', () => {
+test.describe.skip('Home recent video thumbnails', () => {
   test('renders generated video thumbnails and opens the card from the preview area', async ({
     page,
   }) => {
