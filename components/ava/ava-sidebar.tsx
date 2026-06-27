@@ -4,31 +4,39 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import {
-  LayoutDashboard, Map, Play, PenLine,
-  Activity, MessageSquare, CheckSquare2, GraduationCap,
-  Trophy, Star, Glasses,
+  LayoutDashboard,
+  Map,
+  Play,
+  PenLine,
+  Activity,
+  MessageSquare,
+  CheckSquare2,
+  GraduationCap,
+  Trophy,
+  Star,
+  Glasses,
 } from 'lucide-react';
 
 type SidebarItem = { icon: React.ElementType; label: string; href: string };
 
 const STUDY_ITEMS: SidebarItem[] = [
-  { icon: LayoutDashboard, label: 'Painel',     href: '/ava/painel'    },
-  { icon: Map,             label: 'Mapa ENEM',  href: '/ava/mapa'      },
-  { icon: Play,            label: 'Aulas',      href: '/ava/aulas'     },
-  { icon: PenLine,         label: 'Atividades', href: '/ava/atividade' },
+  { icon: LayoutDashboard, label: 'Painel', href: '/ava/painel' },
+  { icon: Map, label: 'Mapa ENEM', href: '/ava/mapa' },
+  { icon: Play, label: 'Aulas', href: '/ava/aulas' },
+  { icon: PenLine, label: 'Atividades', href: '/ava/atividade' },
 ];
 
 const AGENT_ITEMS: SidebarItem[] = [
-  { icon: Activity,     label: 'Diagnóstico', href: '/ava/diagnostico' },
-  { icon: MessageSquare, label: 'Tutor',      href: '/ava/tutor'       },
-  { icon: CheckSquare2, label: 'Avaliador',   href: '/ava/avaliador'   },
-  { icon: GraduationCap, label: 'Pedagógico', href: '/ava/pedagogico'  },
-  { icon: Glasses,       label: 'Acompanhamento', href: '/ava/acompanhamento' },
+  { icon: Activity, label: 'Diagnóstico', href: '/ava/diagnostico' },
+  { icon: MessageSquare, label: 'Tutor', href: '/ava/tutor' },
+  { icon: CheckSquare2, label: 'Avaliador', href: '/ava/avaliador' },
+  { icon: GraduationCap, label: 'Pedagógico', href: '/ava/pedagogico' },
+  { icon: Glasses, label: 'Acompanhamento', href: '/ava/acompanhamento' },
 ];
 
 const EXTRA_ITEMS: SidebarItem[] = [
-  { icon: Trophy, label: 'Ranking',    href: '/ava/ranking'    },
-  { icon: Star,   label: 'Conquistas', href: '/ava/conquistas' },
+  { icon: Trophy, label: 'Ranking', href: '/ava/ranking' },
+  { icon: Star, label: 'Conquistas', href: '/ava/conquistas' },
 ];
 
 function Item({ icon: Icon, label, href, active }: SidebarItem & { active: boolean }) {
@@ -65,20 +73,20 @@ export default function AvaSidebar() {
   return (
     <aside className="bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 overflow-y-auto py-3 flex flex-col">
       <SectionLabel>Estudo</SectionLabel>
-      {STUDY_ITEMS.map(item => (
+      {STUDY_ITEMS.map((item) => (
         <Item key={item.href} {...item} active={pathname === item.href} />
       ))}
 
       <div className="h-px bg-gray-200 dark:bg-gray-800 mx-3.5 my-2" />
 
       <SectionLabel>Agentes IA</SectionLabel>
-      {AGENT_ITEMS.map(item => (
+      {AGENT_ITEMS.map((item) => (
         <Item key={item.href} {...item} active={pathname === item.href} />
       ))}
 
       <div className="h-px bg-gray-200 dark:bg-gray-800 mx-3.5 my-2" />
 
-      {EXTRA_ITEMS.map(item => (
+      {EXTRA_ITEMS.map((item) => (
         <Item key={item.href} {...item} active={pathname === item.href} />
       ))}
     </aside>

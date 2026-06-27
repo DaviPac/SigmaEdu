@@ -8,8 +8,12 @@ export default function MapaScreen() {
   return (
     <>
       <div className="mb-3.5">
-        <p className="text-[15px] font-medium text-gray-900 dark:text-gray-100 mb-0.5">Mapa de proficiência — ENEM</p>
-        <p className="text-[11px] text-gray-500 dark:text-gray-400">Baseado no seu histórico e nas competências cobradas pela banca</p>
+        <p className="text-[15px] font-medium text-gray-900 dark:text-gray-100 mb-0.5">
+          Mapa de proficiência — ENEM
+        </p>
+        <p className="text-[11px] text-gray-500 dark:text-gray-400">
+          Baseado no seu histórico e nas competências cobradas pela banca
+        </p>
       </div>
 
       <div className="grid gap-3 mb-3" style={{ gridTemplateColumns: '1fr 1fr' }}>
@@ -21,7 +25,9 @@ export default function MapaScreen() {
                 <div key={name}>
                   <div className="flex justify-between text-[11px] mb-0.5">
                     <span className="text-gray-500 dark:text-gray-400">{name}</span>
-                    <span className="font-medium" style={{ color }}>{percent}%</span>
+                    <span className="font-medium" style={{ color }}>
+                      {percent}%
+                    </span>
                   </div>
                   <ProgressBar pct={percent} color={color} />
                 </div>

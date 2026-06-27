@@ -9,9 +9,17 @@ import { useTheme } from '@/lib/hooks/use-theme';
 import { useAvaAuth } from './ava-auth-context';
 
 const TABS = [
-  { label: 'Início',          href: '/ava/painel',  match: (p: string) => p === '/ava/painel' || p === '/ava' },
-  { label: 'Preparação ENEM', href: '/ava/mapa',    match: (p: string) => ['/ava/mapa', '/ava/aulas', '/ava/atividade'].includes(p) },
-  { label: 'Ranking',         href: '/ava/ranking', match: (p: string) => p === '/ava/ranking' },
+  {
+    label: 'Início',
+    href: '/ava/painel',
+    match: (p: string) => p === '/ava/painel' || p === '/ava',
+  },
+  {
+    label: 'Preparação ENEM',
+    href: '/ava/mapa',
+    match: (p: string) => ['/ava/mapa', '/ava/aulas', '/ava/atividade'].includes(p),
+  },
+  { label: 'Ranking', href: '/ava/ranking', match: (p: string) => p === '/ava/ranking' },
 ] as const;
 
 export default function AvaTopbar() {
@@ -59,11 +67,17 @@ export default function AvaTopbar() {
 
       {/* Right: XP + Level + Theme + Avatar */}
       <div className="flex items-center gap-2">
-        <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium" style={{ background: '#FAEEDA', color: '#633806' }}>
+        <div
+          className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium"
+          style={{ background: '#FAEEDA', color: '#633806' }}
+        >
           <span style={{ fontSize: 12 }}>⚡</span>
           {MOCK_STUDENT.xp.toLocaleString('pt-BR')} XP
         </div>
-        <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium" style={{ background: '#EEEDFE', color: '#3C3489' }}>
+        <div
+          className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium"
+          style={{ background: '#EEEDFE', color: '#3C3489' }}
+        >
           <span style={{ fontSize: 12 }}>🏆</span>
           Nível {MOCK_STUDENT.level}
         </div>

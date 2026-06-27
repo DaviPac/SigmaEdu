@@ -77,8 +77,14 @@ const MessageBubble = memo(function MessageBubble({
     return (
       <div className="flex gap-1.5 items-center py-1.5 px-1">
         <span className={cn('w-1.5 h-1.5 rounded-full animate-pulse', dotClass)} />
-        <span className={cn('w-1.5 h-1.5 rounded-full animate-pulse', dotClass)} style={{ animationDelay: '200ms' }} />
-        <span className={cn('w-1.5 h-1.5 rounded-full animate-pulse', dotClass)} style={{ animationDelay: '400ms' }} />
+        <span
+          className={cn('w-1.5 h-1.5 rounded-full animate-pulse', dotClass)}
+          style={{ animationDelay: '200ms' }}
+        />
+        <span
+          className={cn('w-1.5 h-1.5 rounded-full animate-pulse', dotClass)}
+          style={{ animationDelay: '400ms' }}
+        />
       </div>
     );
   }
@@ -252,7 +258,9 @@ export function ChatSessionComponent({
                   : {
                       opacity: 1,
                       y: 0,
-                      boxShadow: sigmaMode ? '0 0 0 0 rgba(29, 158, 117, 0)' : '0 0 0 0 rgba(124, 58, 237, 0)',
+                      boxShadow: sigmaMode
+                        ? '0 0 0 0 rgba(29, 158, 117, 0)'
+                        : '0 0 0 0 rgba(124, 58, 237, 0)',
                     }
               }
               transition={
@@ -287,9 +295,13 @@ export function ChatSessionComponent({
                   className={cn(
                     'text-[9px] font-bold uppercase tracking-wider block mb-0.5',
                     isUser
-                      ? sigmaMode ? 'text-[#1D9E75]' : 'text-purple-500 dark:text-purple-400'
+                      ? sigmaMode
+                        ? 'text-[#1D9E75]'
+                        : 'text-purple-500 dark:text-purple-400'
                       : isTeacher
-                        ? sigmaMode ? 'text-[#1D9E75]/70' : 'text-purple-400 dark:text-purple-300'
+                        ? sigmaMode
+                          ? 'text-[#1D9E75]/70'
+                          : 'text-purple-400 dark:text-purple-300'
                         : 'text-indigo-400 dark:text-indigo-300',
                   )}
                 >

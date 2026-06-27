@@ -8,7 +8,9 @@ import { ACTIVITY_SETS, type ActivitySet, type ActivityQuestion } from '@/lib/mo
 // ─── Utility ─────────────────────────────────────────────────────────────────
 
 function formatTime(secs: number) {
-  const m = Math.floor(secs / 60).toString().padStart(2, '0');
+  const m = Math.floor(secs / 60)
+    .toString()
+    .padStart(2, '0');
   const s = (secs % 60).toString().padStart(2, '0');
   return `${m}:${s}`;
 }
@@ -116,7 +118,10 @@ function ResultsScreen({
           />
         </div>
 
-        <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${set.questions.length}, 1fr)` }}>
+        <div
+          className="grid gap-1"
+          style={{ gridTemplateColumns: `repeat(${set.questions.length}, 1fr)` }}
+        >
           {set.questions.map((q, i) => {
             const ans = answers[q.id];
             const ok = ans === q.correctKey;
@@ -128,8 +133,8 @@ function ResultsScreen({
                   !ans
                     ? { background: '#f3f4f6', color: '#9ca3af' }
                     : ok
-                    ? { background: '#E1F5EE', color: '#0F6E56' }
-                    : { background: '#FEE2E2', color: '#991B1B' }
+                      ? { background: '#E1F5EE', color: '#0F6E56' }
+                      : { background: '#FEE2E2', color: '#991B1B' }
                 }
               >
                 {i + 1} {ok ? '✓' : ans ? '✗' : '—'}
@@ -160,13 +165,7 @@ function ResultsScreen({
 
 // ─── Quiz screen ────────────────────────────────────────────────────────────────
 
-function QuizScreen({
-  set,
-  onBack,
-}: {
-  set: ActivitySet;
-  onBack: () => void;
-}) {
+function QuizScreen({ set, onBack }: { set: ActivitySet; onBack: () => void }) {
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [showHint, setShowHint] = useState(false);
@@ -199,7 +198,12 @@ function QuizScreen({
         set={set}
         answers={answers}
         onBack={onBack}
-        onRetry={() => { setIdx(0); setAnswers({}); setElapsed(0); setDone(false); }}
+        onRetry={() => {
+          setIdx(0);
+          setAnswers({});
+          setElapsed(0);
+          setDone(false);
+        }}
       />
     );
   }
@@ -263,9 +267,7 @@ function QuizScreen({
               <div
                 className={cn(
                   'w-[15px] h-[15px] rounded-[3px] border-[1.5px] flex-shrink-0 flex items-center justify-center transition-colors',
-                  selected === key
-                    ? 'border-[#1D9E75]'
-                    : 'border-gray-300 dark:border-gray-600',
+                  selected === key ? 'border-[#1D9E75]' : 'border-gray-300 dark:border-gray-600',
                 )}
                 style={selected === key ? { background: '#1D9E75' } : undefined}
               >

@@ -18,8 +18,7 @@ function InlineMarkdown({ text }: { text: string }) {
       {tokens.map((tok, i) => {
         if (tok.startsWith('**') && tok.endsWith('**'))
           return <strong key={i}>{tok.slice(2, -2)}</strong>;
-        if (tok.startsWith('*') && tok.endsWith('*'))
-          return <em key={i}>{tok.slice(1, -1)}</em>;
+        if (tok.startsWith('*') && tok.endsWith('*')) return <em key={i}>{tok.slice(1, -1)}</em>;
         if (tok.startsWith('`') && tok.endsWith('`'))
           return (
             <code
@@ -62,7 +61,10 @@ function MiniMarkdown({ text }: { text: string }) {
             <ul key={bi} className="list-none space-y-0.5 pl-1">
               {lines.map((l, li) => (
                 <li key={li} className="flex gap-1.5 items-start text-[12px] leading-relaxed">
-                  <span className="mt-[3px] w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#1D9E75' }} />
+                  <span
+                    className="mt-[3px] w-1.5 h-1.5 rounded-full flex-shrink-0"
+                    style={{ background: '#1D9E75' }}
+                  />
                   <InlineMarkdown text={l.replace(/^[-*•]\s/, '').trim()} />
                 </li>
               ))}
@@ -160,7 +162,9 @@ export default function TutorScreen() {
           className="w-9 h-9 rounded-[9px] flex items-center justify-center flex-shrink-0"
           style={{ background: agent.bg }}
         >
-          <span className="text-[16px]" style={{ color: agent.color }}>💬</span>
+          <span className="text-[16px]" style={{ color: agent.color }}>
+            💬
+          </span>
         </div>
         <div>
           <p className="text-[15px] font-medium text-gray-900 dark:text-gray-100">{agent.label}</p>
@@ -175,7 +179,10 @@ export default function TutorScreen() {
       </div>
 
       {/* Chat area */}
-      <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 mb-3 flex flex-col gap-2.5" style={{ minHeight: 200 }}>
+      <div
+        className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 mb-3 flex flex-col gap-2.5"
+        style={{ minHeight: 200 }}
+      >
         {/* Empty state */}
         {isEmpty && (
           <div className="flex-1 flex flex-col items-center justify-center py-6 text-center">
@@ -228,15 +235,15 @@ export default function TutorScreen() {
         {/* Typing indicator */}
         {loading && (
           <div className="max-w-[94%] px-3.5 py-2.5 rounded-[12px_12px_12px_4px] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
-            <p className="text-[10px] text-gray-400 dark:text-gray-500 mb-1.5">🤖 Tutor · modo ENEM</p>
+            <p className="text-[10px] text-gray-400 dark:text-gray-500 mb-1.5">
+              🤖 Tutor · modo ENEM
+            </p>
             <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#1D9E75' }} />
           </div>
         )}
 
         {/* Error */}
-        {error && (
-          <p className="text-[11px] text-red-500 dark:text-red-400 px-1">⚠ {error}</p>
-        )}
+        {error && <p className="text-[11px] text-red-500 dark:text-red-400 px-1">⚠ {error}</p>}
 
         <div ref={endRef} />
       </div>
@@ -249,7 +256,10 @@ export default function TutorScreen() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              send();
+            }
           }}
           placeholder="Digite sua dúvida sobre o ENEM..."
           disabled={loading}

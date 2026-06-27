@@ -49,14 +49,20 @@ test.describe('Agente Acompanhamento', () => {
     await mockAllRoutes(page);
   });
 
-  test('deve permitir configurar a personalidade, editar o estilo e iniciar o chat', async ({ page }) => {
+  test('deve permitir configurar a personalidade, editar o estilo e iniciar o chat', async ({
+    page,
+  }) => {
     await page.goto('/ava/acompanhamento');
 
     // Verifica a tela de configuração inicial
-    await expect(page.locator('text=Qual tipo de professor você prefere?')).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator('text=Qual tipo de professor você prefere?')).toBeVisible({
+      timeout: 10_000,
+    });
 
     // Seleciona a opção "Mais lúdico"
-    const radioLudico = page.locator('label', { hasText: 'Mais lúdico' }).locator('input[type="radio"]');
+    const radioLudico = page
+      .locator('label', { hasText: 'Mais lúdico' })
+      .locator('input[type="radio"]');
     await radioLudico.check();
 
     // Confirma o estilo
@@ -72,7 +78,9 @@ test.describe('Agente Acompanhamento', () => {
     await expect(page.locator('text=Qual tipo de professor você prefere?')).toBeVisible();
 
     // Seleciona "Mais direto"
-    const radioDireto = page.locator('label', { hasText: 'Mais direto' }).locator('input[type="radio"]');
+    const radioDireto = page
+      .locator('label', { hasText: 'Mais direto' })
+      .locator('input[type="radio"]');
     await radioDireto.check();
     await page.locator('button', { hasText: 'Confirmar Estilo' }).click();
 
@@ -88,20 +96,28 @@ test.describe('Agente Acompanhamento', () => {
     await expect(page.locator('text=Como melhorar em matemática?').first()).toBeVisible();
 
     // Verifica se o agente respondeu (mock)
-    await expect(page.locator('text=Acompanhamento · modo ENEM').first()).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator('text=Acompanhamento · modo ENEM').first()).toBeVisible({
+      timeout: 10_000,
+    });
   });
 
   test('deve gerar formato dinâmico de HTML para personalidade customizada', async ({ page }) => {
     await page.goto('/ava/acompanhamento');
 
-    await expect(page.locator('text=Qual tipo de professor você prefere?')).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator('text=Qual tipo de professor você prefere?')).toBeVisible({
+      timeout: 10_000,
+    });
 
     // Seleciona a opção personalizada
-    const radioCustom = page.locator('label', { hasText: 'Personalizar professor' }).locator('input[type="radio"]');
+    const radioCustom = page
+      .locator('label', { hasText: 'Personalizar professor' })
+      .locator('input[type="radio"]');
     await radioCustom.check();
 
     // Preenche o input de personalidade customizada
-    const inputPersonalizado = page.locator('input[placeholder="Ex: Fale como um pirata, ou como um sargento..."]');
+    const inputPersonalizado = page.locator(
+      'input[placeholder="Ex: Fale como um pirata, ou como um sargento..."]',
+    );
     await expect(inputPersonalizado).toBeVisible();
     await inputPersonalizado.fill('Pirata do Caribe');
 
@@ -109,7 +125,9 @@ test.describe('Agente Acompanhamento', () => {
     await page.locator('button', { hasText: 'Confirmar Estilo' }).click();
 
     // Tela deve transicionar para o chat
-    await expect(page.locator('text=Qual tipo de professor você prefere?')).not.toBeVisible({ timeout: 10_000 });
+    await expect(page.locator('text=Qual tipo de professor você prefere?')).not.toBeVisible({
+      timeout: 10_000,
+    });
     await expect(page.locator('text=Estilo: Pirata do Caribe')).toBeVisible();
   });
 
@@ -127,7 +145,9 @@ test.describe('Agente Acompanhamento', () => {
 
     await page.goto('/ava/acompanhamento');
 
-    await expect(page.locator('text=Qual tipo de professor você prefere?')).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator('text=Qual tipo de professor você prefere?')).toBeVisible({
+      timeout: 10_000,
+    });
 
     // Confirma estilo padrão
     await page.locator('button', { hasText: 'Confirmar Estilo' }).click();

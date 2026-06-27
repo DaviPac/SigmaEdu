@@ -114,10 +114,7 @@ export default function AulasScreen() {
           {completed}/{total} concluídas
         </p>
       </div>
-      <div
-        className="h-1.5 rounded-full overflow-hidden mb-5"
-        style={{ background: '#e5e7eb' }}
-      >
+      <div className="h-1.5 rounded-full overflow-hidden mb-5" style={{ background: '#e5e7eb' }}>
         <div
           className="h-full rounded-full transition-all"
           style={{ width: `${(completed / total) * 100}%`, background: '#1D9E75' }}

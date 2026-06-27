@@ -1318,6 +1318,6 @@ function ClassroomCard({
 }
 
 export default function Page() {
-  redirect('/ava')
+  redirect('/ava');
   return <HomePage />;
 }

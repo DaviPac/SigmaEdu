@@ -1,6 +1,13 @@
 import {
-  Eye, Headphones, Hand, Smile,
-  Activity, ClipboardList, GraduationCap, MessageSquare, Glasses,
+  Eye,
+  Headphones,
+  Hand,
+  Smile,
+  Activity,
+  ClipboardList,
+  GraduationCap,
+  MessageSquare,
+  Glasses,
   type LucideIcon,
 } from 'lucide-react';
 import type { LearningStyleIconName } from '@/lib/mock/ava-data';
@@ -9,9 +16,9 @@ export type AgentId = 'diagnostico' | 'avaliador' | 'pedagogico' | 'tutor' | 'ac
 
 export const AGENT_ICONS: Record<AgentId, LucideIcon> = {
   diagnostico: Activity,
-  avaliador:   ClipboardList,
-  pedagogico:  GraduationCap,
-  tutor:       MessageSquare,
+  avaliador: ClipboardList,
+  pedagogico: GraduationCap,
+  tutor: MessageSquare,
   acompanhamento: Glasses,
 };
 
