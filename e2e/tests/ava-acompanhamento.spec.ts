@@ -1,60 +1,76 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Agente Acompanhamento', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.route('**/api/ava/auth/me', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ user: { id: 1, username: 'testuser' } })
-      });
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+
+/** Configura mocks do backend FastAPI para isolar os testes E2E do servidor real. */
+async function mockBackendRoutes(page: import('@playwright/test').Page) {
+  await page.route(`${BACKEND_URL}/ava/acompanhamento`, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ text: 'Resposta mockada do Agente Professor.' }),
     });
   });
 
+  await page.route(`${BACKEND_URL}/ava/format-generator`, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        format: '<div class="p-4"><h3>🎯 Análise</h3><p>[Sua resposta aqui]</p></div>',
+      }),
+    });
+  });
+}
+
+test.describe('Agente Acompanhamento', () => {
+  test.beforeEach(async ({ page }) => {
+    await mockBackendRoutes(page);
+  });
+
   test('deve permitir configurar a personalidade, editar o estilo e iniciar o chat', async ({ page }) => {
-    // 1. Acessa a página diretamente
     await page.goto('/ava/acompanhamento');
 
-    // 2. Verifica a tela de configuração inicial
+    // Verifica a tela de configuração inicial
     await expect(page.locator('text=Qual tipo de professor você prefere?')).toBeVisible();
 
-    // 3. Seleciona a opção "Mais lúdico"
+    // Seleciona a opção "Mais lúdico"
     const radioLudico = page.locator('label', { hasText: 'Mais lúdico' }).locator('input[type="radio"]');
     await radioLudico.check();
-    
-    // 4. Confirma o estilo
+
+    // Confirma o estilo
     await page.locator('button', { hasText: 'Confirmar Estilo' }).click();
 
-    // 5. Verifica se a tela de chat apareceu e a confirmação sumiu
+    // Verifica se a tela de chat apareceu
     await expect(page.locator('text=Qual tipo de professor você prefere?')).not.toBeVisible();
     await expect(page.locator('text=Estilo: Mais lúdico')).toBeVisible();
     await expect(page.locator('text=Pronto para analisar seu desempenho')).toBeVisible();
 
-    // 6. Edita o estilo do professor
+    // Edita o estilo do professor
     await page.locator('button[title="Editar Estilo do Professor"]').click();
     await expect(page.locator('text=Qual tipo de professor você prefere?')).toBeVisible();
-    
-    // 7. Seleciona "Mais direto"
+
+    // Seleciona "Mais direto"
     const radioDireto = page.locator('label', { hasText: 'Mais direto' }).locator('input[type="radio"]');
     await radioDireto.check();
     await page.locator('button', { hasText: 'Confirmar Estilo' }).click();
 
-    // 8. Verifica se o estilo foi atualizado com sucesso
+    // Verifica se o estilo foi atualizado
     await expect(page.locator('text=Estilo: Mais direto')).toBeVisible();
 
-    // 9. Envia uma mensagem
+    // Envia uma mensagem
     const input = page.locator('textarea[placeholder="Digite sua dúvida sobre o desempenho..."]');
     await input.fill('Como melhorar em matemática?');
     await page.keyboard.press('Enter');
 
-    // 10. Verifica se a mensagem aparece no chat
+    // Verifica se a mensagem aparece no chat
     await expect(page.locator('text=Como melhorar em matemática?').first()).toBeVisible();
-    
-    // 11. Verifica se o "Acompanhamento · modo ENEM" respondeu (mock ou real depende do setup)
-    await expect(page.locator('text=Acompanhamento · modo ENEM').first()).toBeVisible();
+
+    // Verifica se o agente respondeu (mock)
+    await expect(page.locator('text=Acompanhamento · modo ENEM').first()).toBeVisible({ timeout: 10_000 });
   });
 
-  test('deve gerar formato dinamico de HTML para personalidade customizada', async ({ page }) => {
+  test('deve gerar formato dinâmico de HTML para personalidade customizada', async ({ page }) => {
     await page.goto('/ava/acompanhamento');
 
     // Seleciona a opção personalizada
@@ -66,39 +82,40 @@ test.describe('Agente Acompanhamento', () => {
     await expect(inputPersonalizado).toBeVisible();
     await inputPersonalizado.fill('Pirata do Caribe');
 
-    // Ao clicar em confirmar, deve mostrar o loader de geração do formato visual
+    // Confirma o estilo
     const buttonConfirm = page.locator('button', { hasText: 'Confirmar Estilo' });
     await buttonConfirm.click();
-    
-    // Como a request pode ser rápida, vamos apenas garantir que a tela transicione corretamente com a badge formatada
-    await expect(page.locator('text=Qual tipo de professor você prefere?')).not.toBeVisible();
+
+    // Tela deve transicionar para o chat
+    await expect(page.locator('text=Qual tipo de professor você prefere?')).not.toBeVisible({ timeout: 10_000 });
     await expect(page.locator('text=Estilo: Pirata do Caribe')).toBeVisible();
   });
 
-  test('deve exibir fallback elegante quando ocorrer erro interno na API ou no LLM', async ({ page }) => {
-    // 1. Mockar a API para simular o comportamento de falha tratada pelo backend (200 OK com texto de erro)
-    await page.route('http://localhost:8000/ava/acompanhamento', async (route) => {
+  test('deve exibir fallback elegante quando ocorrer erro na API', async ({ page }) => {
+    // Sobrescreve o mock para simular resposta de erro tratada pelo backend
+    await page.route(`${BACKEND_URL}/ava/acompanhamento`, async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
-          text: "Desculpe, ocorreu um erro interno e não consegui gerar sua resposta. Por favor, tente novamente em alguns instantes!"
-        })
+          text: 'Desculpe, ocorreu um erro interno e não consegui gerar sua resposta. Por favor, tente novamente em alguns instantes!',
+        }),
       });
     });
 
     await page.goto('/ava/acompanhamento');
-    
+
     // Confirma estilo padrão
     await page.locator('button', { hasText: 'Confirmar Estilo' }).click();
 
-    // Envia uma mensagem qualquer (ex: a palavra que causava erro)
+    // Envia uma mensagem
     const input = page.locator('textarea[placeholder="Digite sua dúvida sobre o desempenho..."]');
     await input.fill('trigonometri');
     await page.keyboard.press('Enter');
 
-    // Verifica se a mensagem de fallback foi renderizada no chat sem causar crash na tela
-    await expect(page.locator('text=Desculpe, ocorreu um erro interno e não consegui gerar sua resposta.')).toBeVisible();
+    // Verifica se a mensagem de fallback foi renderizada
+    await expect(
+      page.locator('text=Desculpe, ocorreu um erro interno e não consegui gerar sua resposta.'),
+    ).toBeVisible({ timeout: 10_000 });
   });
 });
-
