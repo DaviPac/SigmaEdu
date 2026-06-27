@@ -2,18 +2,39 @@ import { test, expect } from '@playwright/test';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 
-/** Configura mocks do backend FastAPI para isolar os testes E2E do servidor real. */
-async function mockBackendRoutes(page: import('@playwright/test').Page) {
-  await page.route(`${BACKEND_URL}/ava/acompanhamento`, async (route) => {
-    await route.fulfill({
+/**
+ * Configura mocks essenciais para isolar os testes da AVA de serviços externos.
+ * - /api/access-code/status: desabilita o AccessCodeGuard do root layout
+ * - /api/ava/auth/me: simula usuário autenticado, evitando redirect para /ava/login
+ * - Backend FastAPI endpoints: intercepta chamadas ao servidor Python
+ */
+async function mockAllRoutes(page: import('@playwright/test').Page) {
+  await page.route('**/api/access-code/status', (route) => {
+    route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ text: 'Resposta mockada do Agente Professor.' }),
+      body: JSON.stringify({ enabled: false, authenticated: false }),
     });
   });
 
-  await page.route(`${BACKEND_URL}/ava/format-generator`, async (route) => {
-    await route.fulfill({
+  await page.route('**/api/ava/auth/me', (route) => {
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ user: { id: 1, username: 'testuser' } }),
+    });
+  });
+
+  await page.route(`${BACKEND_URL}/ava/acompanhamento`, (route) => {
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ text: 'Resposta mockada do Agente Professor. Foco total no ENEM!' }),
+    });
+  });
+
+  await page.route(`${BACKEND_URL}/ava/format-generator`, (route) => {
+    route.fulfill({
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify({
@@ -25,14 +46,14 @@ async function mockBackendRoutes(page: import('@playwright/test').Page) {
 
 test.describe('Agente Acompanhamento', () => {
   test.beforeEach(async ({ page }) => {
-    await mockBackendRoutes(page);
+    await mockAllRoutes(page);
   });
 
   test('deve permitir configurar a personalidade, editar o estilo e iniciar o chat', async ({ page }) => {
     await page.goto('/ava/acompanhamento');
 
     // Verifica a tela de configuração inicial
-    await expect(page.locator('text=Qual tipo de professor você prefere?')).toBeVisible();
+    await expect(page.locator('text=Qual tipo de professor você prefere?')).toBeVisible({ timeout: 10_000 });
 
     // Seleciona a opção "Mais lúdico"
     const radioLudico = page.locator('label', { hasText: 'Mais lúdico' }).locator('input[type="radio"]');
@@ -43,7 +64,7 @@ test.describe('Agente Acompanhamento', () => {
 
     // Verifica se a tela de chat apareceu
     await expect(page.locator('text=Qual tipo de professor você prefere?')).not.toBeVisible();
-    await expect(page.locator('text=Estilo: Mais lúdico')).toBeVisible();
+    await expect(page.locator('text=Estilo: Mais lúdico')).toBeVisible({ timeout: 10_000 });
     await expect(page.locator('text=Pronto para analisar seu desempenho')).toBeVisible();
 
     // Edita o estilo do professor
@@ -56,7 +77,7 @@ test.describe('Agente Acompanhamento', () => {
     await page.locator('button', { hasText: 'Confirmar Estilo' }).click();
 
     // Verifica se o estilo foi atualizado
-    await expect(page.locator('text=Estilo: Mais direto')).toBeVisible();
+    await expect(page.locator('text=Estilo: Mais direto')).toBeVisible({ timeout: 10_000 });
 
     // Envia uma mensagem
     const input = page.locator('textarea[placeholder="Digite sua dúvida sobre o desempenho..."]');
@@ -73,18 +94,19 @@ test.describe('Agente Acompanhamento', () => {
   test('deve gerar formato dinâmico de HTML para personalidade customizada', async ({ page }) => {
     await page.goto('/ava/acompanhamento');
 
+    await expect(page.locator('text=Qual tipo de professor você prefere?')).toBeVisible({ timeout: 10_000 });
+
     // Seleciona a opção personalizada
     const radioCustom = page.locator('label', { hasText: 'Personalizar professor' }).locator('input[type="radio"]');
     await radioCustom.check();
 
-    // Preenche o input
+    // Preenche o input de personalidade customizada
     const inputPersonalizado = page.locator('input[placeholder="Ex: Fale como um pirata, ou como um sargento..."]');
     await expect(inputPersonalizado).toBeVisible();
     await inputPersonalizado.fill('Pirata do Caribe');
 
     // Confirma o estilo
-    const buttonConfirm = page.locator('button', { hasText: 'Confirmar Estilo' });
-    await buttonConfirm.click();
+    await page.locator('button', { hasText: 'Confirmar Estilo' }).click();
 
     // Tela deve transicionar para o chat
     await expect(page.locator('text=Qual tipo de professor você prefere?')).not.toBeVisible({ timeout: 10_000 });
@@ -93,8 +115,8 @@ test.describe('Agente Acompanhamento', () => {
 
   test('deve exibir fallback elegante quando ocorrer erro na API', async ({ page }) => {
     // Sobrescreve o mock para simular resposta de erro tratada pelo backend
-    await page.route(`${BACKEND_URL}/ava/acompanhamento`, async (route) => {
-      await route.fulfill({
+    await page.route(`${BACKEND_URL}/ava/acompanhamento`, (route) => {
+      route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
@@ -104,6 +126,8 @@ test.describe('Agente Acompanhamento', () => {
     });
 
     await page.goto('/ava/acompanhamento');
+
+    await expect(page.locator('text=Qual tipo de professor você prefere?')).toBeVisible({ timeout: 10_000 });
 
     // Confirma estilo padrão
     await page.locator('button', { hasText: 'Confirmar Estilo' }).click();
