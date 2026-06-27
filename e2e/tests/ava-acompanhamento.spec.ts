@@ -1,6 +1,16 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Agente Acompanhamento', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.route('**/api/ava/auth/me', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ user: { id: 1, username: 'testuser' } })
+      });
+    });
+  });
+
   test('deve permitir configurar a personalidade, editar o estilo e iniciar o chat', async ({ page }) => {
     // 1. Acessa a página diretamente
     await page.goto('/ava/acompanhamento');
@@ -67,7 +77,7 @@ test.describe('Agente Acompanhamento', () => {
 
   test('deve exibir fallback elegante quando ocorrer erro interno na API ou no LLM', async ({ page }) => {
     // 1. Mockar a API para simular o comportamento de falha tratada pelo backend (200 OK com texto de erro)
-    await page.route('**/ava/acompanhamento', async (route) => {
+    await page.route('http://localhost:8000/ava/acompanhamento', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
