@@ -25,6 +25,9 @@ export default defineConfig({
     url: 'http://localhost:3002',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
-    env: { PORT: '3002' },
+    env: {
+      PORT: '3002',
+      NEXT_PUBLIC_IS_E2E: 'true',
+    },
   },
 });
