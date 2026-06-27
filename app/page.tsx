@@ -1317,7 +1317,10 @@ function ClassroomCard({
   );
 }
 
+/** Redireciona para o AVA por padrão, exceto durante testes E2E. */
 export default function Page() {
-  redirect('/ava');
+  if (process.env.NEXT_PUBLIC_IS_E2E !== 'true') {
+    redirect('/ava');
+  }
   return <HomePage />;
 }

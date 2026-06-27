@@ -124,7 +124,7 @@ async function seedDatabase(page: import('@playwright/test').Page) {
 }
 
 test.describe('Classroom Interaction', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, mockApi }) => {
     await seedDatabase(page);
   });
 
