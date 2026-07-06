@@ -318,12 +318,16 @@ export const ACOMPANHAMENTO_FORMATS: Record<string, string> = {
 
 // ─── Activity / Simulado ──────────────────────────────────────────────────────
 
-export type QuestionOption = { key: string; value: string };
+export type QuestionOption = { key: string; value: string; image?: string | null };
 
 export type ActivityQuestion = {
   id: string;
   area: string;
   text: string;
+  /** Texto de contexto/enunciado longo (ex: trecho literário, situação-problema). */
+  context?: string;
+  /** Imagens do contexto em base64. */
+  contextImages?: string[];
   options: QuestionOption[];
   correctKey: string;
   xpReward: number;
