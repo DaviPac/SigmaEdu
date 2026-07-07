@@ -332,6 +332,10 @@ export type ActivityQuestion = {
   correctKey: string;
   xpReward: number;
   hint: string;
+  /** Código de área ENEM: LC | CN | CH | MT (presente apenas em questões reais do banco). */
+  areaCode?: string;
+  /** Nome da subárea, ex: "Álgebra" (presente apenas em questões reais do banco). */
+  subareaName?: string | null;
 };
 
 export type ActivitySet = {
