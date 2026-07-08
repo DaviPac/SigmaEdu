@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, Loader2 } from 'lucide-react';
+import { Send, Loader2, Trash2 } from 'lucide-react';
 import { AGENTS, TUTOR_CONFIG } from '@/lib/mock/ava-data';
 import { getCurrentModelConfig } from '@/lib/utils/model-config';
 import type { ChatMessage } from '@/lib/mock/ava-data';
@@ -15,10 +15,29 @@ import MiniMarkdown from '@/components/ava/mini-markdown';
 export default function TutorScreen() {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const storedMessages = localStorage.getItem('avaTutor_messages');
+    if (storedMessages) {
+      try {
+        setMessages(JSON.parse(storedMessages));
+      } catch (err) {
+        console.error('Failed to parse stored tutor messages', err);
+      }
+    }
+    setIsLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('avaTutor_messages', JSON.stringify(messages));
+    }
+  }, [messages, isLoaded]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -66,6 +85,13 @@ export default function TutorScreen() {
     }
   };
 
+  const handleClearChat = () => {
+    if (window.confirm('Deseja realmente limpar o histórico desta conversa?')) {
+      setMessages([]);
+      localStorage.removeItem('avaTutor_messages');
+    }
+  };
+
   const isEmpty = messages.length === 0 && !loading;
 
   return (
@@ -90,6 +116,13 @@ export default function TutorScreen() {
         >
           ⚡ +{agent.xpReward} XP por dúvida resolvida
         </div>
+        <button
+          onClick={handleClearChat}
+          className="ml-2 flex items-center justify-center p-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-650 dark:hover:text-red-400 transition-colors text-gray-500 dark:text-gray-400"
+          title="Limpar Conversa"
+        >
+          <Trash2 className="w-[18px] h-[18px]" />
+        </button>
       </div>
 
       {/* Chat area */}

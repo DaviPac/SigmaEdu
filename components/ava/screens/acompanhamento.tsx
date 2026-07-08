@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, Loader2, Glasses, Settings2 } from 'lucide-react';
+import { Send, Loader2, Glasses, Settings2, Trash2 } from 'lucide-react';
 import { AGENTS, ACOMPANHAMENTO_CONFIG, ACOMPANHAMENTO_FORMATS } from '@/lib/mock/ava-data';
 import type { ChatMessage } from '@/lib/mock/ava-data';
 
@@ -30,13 +30,27 @@ export default function AcompanhamentoScreen() {
     const storedType = localStorage.getItem('avaAcompanhamento_type');
     const storedCustom = localStorage.getItem('avaAcompanhamento_custom');
     const storedConfigured = localStorage.getItem('avaAcompanhamento_configured');
+    const storedMessages = localStorage.getItem('avaAcompanhamento_messages');
 
     if (storedType) setPersonalityType(storedType);
     if (storedCustom) setCustomPersonality(storedCustom);
     if (storedConfigured === 'true') setPersonalityConfigured(true);
+    if (storedMessages) {
+      try {
+        setMessages(JSON.parse(storedMessages));
+      } catch (err) {
+        console.error('Failed to parse stored acompanhamento messages', err);
+      }
+    }
 
     setIsLoaded(true);
   }, []);
+
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('avaAcompanhamento_messages', JSON.stringify(messages));
+    }
+  }, [messages, isLoaded]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -82,6 +96,16 @@ export default function AcompanhamentoScreen() {
   const handleEditPersonality = () => {
     setPersonalityConfigured(false);
     localStorage.setItem('avaAcompanhamento_configured', 'false');
+    setMessages([]);
+    localStorage.removeItem('avaAcompanhamento_messages');
+  };
+
+  /** Limpa o histórico de mensagens da conversa. */
+  const handleClearChat = () => {
+    if (window.confirm('Deseja realmente limpar o histórico desta conversa?')) {
+      setMessages([]);
+      localStorage.removeItem('avaAcompanhamento_messages');
+    }
   };
 
   const currentPersonality =
@@ -230,6 +254,13 @@ export default function AcompanhamentoScreen() {
           title="Editar Estilo do Professor"
         >
           <Settings2 className="w-[18px] h-[18px]" />
+        </button>
+        <button
+          onClick={handleClearChat}
+          className="ml-1 flex items-center justify-center p-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-650 dark:hover:text-red-400 transition-colors text-gray-500 dark:text-gray-400"
+          title="Limpar Conversa"
+        >
+          <Trash2 className="w-[18px] h-[18px]" />
         </button>
       </div>
 
