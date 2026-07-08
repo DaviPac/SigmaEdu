@@ -284,20 +284,23 @@ export default function MiniMarkdown({ text, bulletColor = '#7E22CE' }: MiniMark
     }
 
     // 2. Heading
-    if (trimmedLine.startsWith('#')) {
-      const match = trimmedLine.match(/^(#{1,6})\s+(.*)$/);
-      if (match) {
-        if (currentBlock) {
-          blocks.push(currentBlock);
-          currentBlock = null;
-        }
-        blocks.push({
-          type: 'heading',
-          level: match[1].length,
-          lines: [match[2]],
-        });
-        continue;
+    const isSpecialHeading =
+      /^\s*\d+\.\s*(Teoria Direcionada|A Questão Base|Resolução Passo a Passo|Desafio de Fixação)/i.test(
+        line,
+      );
+    if (trimmedLine.startsWith('#') || isSpecialHeading) {
+      if (currentBlock) {
+        blocks.push(currentBlock);
+        currentBlock = null;
       }
+      const cleanContent = trimmedLine.replace(/^#+\s*/, '');
+      const level = trimmedLine.startsWith('#') ? trimmedLine.match(/^(#+)/)?.[1].length || 3 : 3;
+      blocks.push({
+        type: 'heading',
+        level,
+        lines: [cleanContent],
+      });
+      continue;
     }
 
     // 3. Blockquote
@@ -395,14 +398,14 @@ export default function MiniMarkdown({ text, bulletColor = '#7E22CE' }: MiniMark
         const level = block.level || 3;
         const sizeClass =
           level === 1
-            ? 'text-[15px] font-bold'
+            ? 'text-[17px] font-bold'
             : level === 2
-              ? 'text-[14px] font-bold'
-              : 'text-[13px] font-semibold';
+              ? 'text-[16px] font-bold'
+              : 'text-[15px] font-bold';
         return (
           <div
             key={key}
-            className={`${sizeClass} text-violet-900 dark:text-violet-300 border-b border-violet-100 dark:border-violet-850 pb-1 mt-4`}
+            className={`${sizeClass} text-violet-800 dark:text-violet-200 border-b border-violet-100 dark:border-violet-800/60 pb-1.5 mt-7 mb-3`}
           >
             <InlineMarkdown text={content} />
           </div>
