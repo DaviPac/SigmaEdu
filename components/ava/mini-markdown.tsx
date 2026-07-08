@@ -163,12 +163,14 @@ function domToReact(node: Node, bulletColor: string): React.ReactNode {
     const key = Math.random();
 
     switch (tagName) {
-      case 'div':
+      case 'div': {
+        const groupedChildren = groupElements(children, bulletColor);
         return (
           <div key={key} className={className} style={style}>
-            {children}
+            {groupedChildren}
           </div>
         );
+      }
       case 'span':
         return (
           <span key={key} className={className} style={style}>
@@ -183,13 +185,21 @@ function domToReact(node: Node, bulletColor: string): React.ReactNode {
         );
       case 'h3':
         return (
-          <h3 key={key} className={className} style={style}>
+          <h3
+            key={key}
+            className={`${className || ''} text-[16px] font-bold text-violet-850 dark:text-violet-200 mt-7 first:mt-0 mb-3`}
+            style={style}
+          >
             {children}
           </h3>
         );
       case 'h4':
         return (
-          <h4 key={key} className={className} style={style}>
+          <h4
+            key={key}
+            className={`${className || ''} text-[15px] font-bold text-violet-900 dark:text-violet-250 mt-5 first:mt-0 mb-2.5`}
+            style={style}
+          >
             {children}
           </h4>
         );
@@ -245,14 +255,77 @@ function domToReact(node: Node, bulletColor: string): React.ReactNode {
   return null;
 }
 
-/** Faz o parsing seguro do HTML usando DOMParser no cliente e retorna elementos React. */
+/** Agrupa e indenta os elementos filhos que sucedem um cabeçalho no HTML. */
+function groupElements(elements: React.ReactNode[], bulletColor: string): React.ReactNode[] {
+  const result: React.ReactNode[] = [];
+  let currentGroup: { header: React.ReactNode; body: React.ReactNode[] } | null = null;
+
+  for (const el of elements) {
+    if (!el) continue;
+
+    const isHeading =
+      React.isValidElement(el) &&
+      (el.type === 'h1' ||
+        el.type === 'h2' ||
+        el.type === 'h3' ||
+        el.type === 'h4' ||
+        el.type === 'h5' ||
+        el.type === 'h6' ||
+        (el.type === 'div' &&
+          ((el as React.ReactElement<any>).props.className?.includes('text-[16px]') ||
+            (el as React.ReactElement<any>).props.className?.includes('text-[17px]') ||
+            (el as React.ReactElement<any>).props.className?.includes('text-[18px]'))));
+
+    if (isHeading) {
+      if (currentGroup) {
+        result.push(currentGroup.header);
+        if (currentGroup.body.length > 0) {
+          result.push(
+            <div
+              key={Math.random()}
+              className="pl-4 sm:pl-5 border-l-2 border-purple-100 dark:border-purple-900/30 ml-2 space-y-3.5 animate-fadeIn"
+            >
+              {currentGroup.body}
+            </div>,
+          );
+        }
+      }
+      currentGroup = { header: el, body: [] };
+    } else {
+      if (currentGroup) {
+        currentGroup.body.push(el);
+      } else {
+        result.push(el);
+      }
+    }
+  }
+
+  if (currentGroup) {
+    result.push(currentGroup.header);
+    if (currentGroup.body.length > 0) {
+      result.push(
+        <div
+          key={Math.random()}
+          className="pl-4 sm:pl-5 border-l-2 border-purple-100 dark:border-purple-900/30 ml-2 space-y-3.5 animate-fadeIn"
+        >
+          {currentGroup.body}
+        </div>,
+      );
+    }
+  }
+
+  return result;
+}
+
+/** Faz o parsing seguro do HTML usando DOMParser no cliente e retorna elementos React com indentação hierárquica. */
 function parseHTMLToReact(html: string, bulletColor: string): React.ReactNode {
   if (typeof window === 'undefined') {
     return null;
   }
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
-  return Array.from(doc.body.childNodes).map((child) => domToReact(child, bulletColor));
+  const children = Array.from(doc.body.childNodes).map((child) => domToReact(child, bulletColor));
+  return groupElements(children, bulletColor);
 }
 
 /** Renderiza formatação markdown em blocos com design premium e suporte a blockquotes. */
