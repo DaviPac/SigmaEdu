@@ -12,15 +12,22 @@ interface MiniMarkdownProps {
 
 /** Renderiza fórmula matemática usando KaTeX de forma segura. */
 function LateXMath({ formula, displayMode = false }: { formula: string; displayMode?: boolean }) {
+  let html = '';
+  let errorMsg = '';
   try {
-    const html = katex.renderToString(formula, {
+    html = katex.renderToString(formula, {
       displayMode,
       throwOnError: false,
     });
-    return <span dangerouslySetInnerHTML={{ __html: html }} />;
   } catch (error) {
+    errorMsg = String(error);
+  }
+  
+  if (errorMsg) {
     return <code className="font-mono text-red-500">{formula}</code>;
   }
+  
+  return <span dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
 /** Renderiza formatação inline como negrito, itálico e códigos/fórmulas com destaque. */
@@ -155,7 +162,7 @@ function domToReact(node: Node, bulletColor: string): React.ReactNode {
         const [k, v] = pair.split(':');
         if (k && v) {
           const camelKey = k.trim().replace(/-./g, (x) => x[1].toUpperCase());
-          (style as any)[camelKey] = v.trim();
+          (style as Record<string, string>)[camelKey] = v.trim();
         }
       });
     }
@@ -272,9 +279,9 @@ function groupElements(elements: React.ReactNode[], bulletColor: string): React.
         el.type === 'h5' ||
         el.type === 'h6' ||
         (el.type === 'div' &&
-          ((el as React.ReactElement<any>).props.className?.includes('text-[16px]') ||
-            (el as React.ReactElement<any>).props.className?.includes('text-[17px]') ||
-            (el as React.ReactElement<any>).props.className?.includes('text-[18px]'))));
+          ((el as React.ReactElement<{ className?: string }>).props.className?.includes('text-[16px]') ||
+            (el as React.ReactElement<{ className?: string }>).props.className?.includes('text-[17px]') ||
+            (el as React.ReactElement<{ className?: string }>).props.className?.includes('text-[18px]'))));
 
     if (isHeading) {
       if (currentGroup) {

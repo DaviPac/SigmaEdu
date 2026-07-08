@@ -55,13 +55,13 @@ export default function AcompanhamentoScreen() {
       try {
         const parsed = JSON.parse(storedConvos);
         setConversations(parsed);
-        if (storedActiveId && parsed.find((c: any) => c.id === storedActiveId)) {
+        if (storedActiveId && parsed.find((c: Conversation) => c.id === storedActiveId)) {
           setActiveId(storedActiveId);
         } else if (parsed.length > 0) {
           setActiveId(parsed[0].id);
         }
-      } catch (e) {
-        console.error(e);
+      } catch (_e) {
+        console.error(_e);
       }
     } else if (oldMessages) {
       // Migrate old chat
