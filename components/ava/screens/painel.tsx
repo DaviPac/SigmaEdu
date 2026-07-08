@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { MOCK_STUDENT, PRIORITY_GAPS, AGENTS } from '@/lib/mock/ava-data';
+import { MOCK_STUDENT, PRIORITY_GAPS } from '@/lib/mock/ava-data';
 import { Card, SectionLabel, ProgressBar, Tag } from '@/components/ava/ava-ui';
 
 const NEXT_STEPS = [
@@ -23,11 +23,11 @@ const NEXT_STEPS = [
   },
   {
     icon: '💬',
-    label: 'Tutor: revisar redação',
-    sub: '+60 XP ao concluir',
+    label: 'Acompanhamento: analisar desempenho',
+    sub: '+30 XP ao concluir',
     tag: 'purple' as const,
     tagLabel: 'Sugerido',
-    href: '/ava/tutor',
+    href: '/ava/acompanhamento',
   },
 ];
 
@@ -41,28 +41,20 @@ const AGENT_LINKS = [
     href: '/ava/diagnostico',
   },
   {
-    id: 'tutor',
-    label: 'Tutor',
-    sub: 'Tira dúvidas',
-    bg: '#FAEEDA',
-    color: '#854F0B',
-    href: '/ava/tutor',
-  },
-  {
     id: 'avaliador',
     label: 'Avaliador',
-    sub: 'Corrige atividades',
+    sub: 'Avalia desempenho',
     bg: '#EAF3DE',
     color: '#3B6D11',
     href: '/ava/avaliador',
   },
   {
-    id: 'pedagogico',
-    label: 'Pedagógico',
-    sub: 'Cria sua trilha',
-    bg: '#EEEDFE',
-    color: '#534AB7',
-    href: '/ava/pedagogico',
+    id: 'acompanhamento',
+    label: 'Acompanhamento',
+    sub: 'Analisa progresso',
+    bg: '#F4EBFF',
+    color: '#7E22CE',
+    href: '/ava/acompanhamento',
   },
 ];
 
@@ -162,7 +154,7 @@ export default function PainelScreen() {
           <SectionLabel>Agentes disponíveis</SectionLabel>
           <span className="text-[11px] text-gray-400 dark:text-gray-500">Todos ativos</span>
         </div>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           {AGENT_LINKS.map(({ label, sub, bg, color, href }) => (
             <Link
               key={label}

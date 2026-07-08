@@ -22,7 +22,7 @@ export const MOCK_STUDENT: MockStudent = {
 
 // ─── Agents ───────────────────────────────────────────────────────────────────
 
-export type AgentId = 'diagnostico' | 'avaliador' | 'pedagogico' | 'tutor' | 'acompanhamento';
+export type AgentId = 'diagnostico' | 'avaliador' | 'acompanhamento';
 
 export type AgentData = {
   id: AgentId;
@@ -47,29 +47,11 @@ export const AGENTS: AgentData[] = [
   {
     id: 'avaliador',
     label: 'Agente Avaliador',
-    subtitle: 'Corrige atividades',
-    description: 'Simulado — ciências da natureza · resultado',
+    subtitle: 'Avalia seu desempenho',
+    description: 'Seu desempenho real nas questões do ENEM',
     bg: '#EAF3DE',
     color: '#3B6D11',
     xpReward: 120,
-  },
-  {
-    id: 'pedagogico',
-    label: 'Agente Pedagógico',
-    subtitle: 'Cria sua trilha',
-    description: 'Trilha personalizada para o ENEM 2025 — Davi',
-    bg: '#EEEDFE',
-    color: '#534AB7',
-    xpReward: 0,
-  },
-  {
-    id: 'tutor',
-    label: 'Agente Tutor',
-    subtitle: 'Tira dúvidas',
-    description: 'Modo ENEM — simula a linguagem da banca',
-    bg: '#FAEEDA',
-    color: '#854F0B',
-    xpReward: 20,
   },
   {
     id: 'acompanhamento',
@@ -159,91 +141,11 @@ export const PRIORITY_GAPS: GapItem[] = [
   { name: 'Linguagens', percent: 74, color: '#1D9E75', textColor: '#1D9E75' },
 ];
 
-// ─── Avaliador / Evaluation ───────────────────────────────────────────────────
+// ─── Shared UI types ─────────────────────────────────────────────────────────
 
 export type TagVariant = 'teal' | 'blue' | 'amber' | 'red' | 'purple' | 'green';
 
-export type TopicScore = { name: string; percent: number; color: string };
-
-export type EvaluationResult = {
-  hits: number;
-  misses: number;
-  triScore: number;
-  topics: TopicScore[];
-  gaps: string[];
-};
-
-export const MOCK_EVALUATION: EvaluationResult = {
-  hits: 18,
-  misses: 7,
-  triScore: 720,
-  topics: [
-    { name: 'Biologia — evolução', percent: 78, color: '#1D9E75' },
-    { name: 'Química — orgânica', percent: 55, color: '#EF9F27' },
-    { name: 'Física — eletricidade', percent: 28, color: '#E24B4A' },
-  ],
-  gaps: [
-    'Circuitos elétricos — lei de Ohm',
-    'Reações de oxidação-redução',
-    'Genética — herança ligada ao sexo',
-  ],
-};
-
-// ─── Pedagógico ───────────────────────────────────────────────────────────────
-
-export type TrailStep = {
-  text: string;
-  day: string;
-  tag: TagVariant;
-  tagLabel: string;
-  xp: number;
-};
-
-export type AreaProgress = { name: string; percent: number; color: string };
-
-export type PedagogicoData = {
-  trailSteps: TrailStep[];
-  areaProgress: AreaProgress[];
-  projectedScore: number;
-  targetScore: number;
-};
-
-export const MOCK_PEDAGOGICO: PedagogicoData = {
-  trailSteps: [
-    { text: 'Aula: funções do 2º grau', day: 'Seg', tag: 'red', tagLabel: 'Urgente', xp: 80 },
-    { text: 'Exercícios: lei de Ohm', day: 'Ter', tag: 'amber', tagLabel: 'Importante', xp: 60 },
-    { text: 'Redação: praticar C3', day: 'Qua', tag: 'amber', tagLabel: 'Importante', xp: 100 },
-    { text: 'Simulado semanal completo', day: 'Sex', tag: 'teal', tagLabel: 'Semanal', xp: 120 },
-  ],
-  areaProgress: [
-    { name: 'Ciências humanas', percent: 72, color: '#1D9E75' },
-    { name: 'Linguagens', percent: 74, color: '#1D9E75' },
-    { name: 'Redação', percent: 54, color: '#EF9F27' },
-    { name: 'Matemática', percent: 48, color: '#EF9F27' },
-    { name: 'Ciências da natureza', percent: 40, color: '#E24B4A' },
-  ],
-  projectedScore: 680,
-  targetScore: 750,
-};
-
-// ─── Tutor ────────────────────────────────────────────────────────────────────
-
 export type ChatMessage = { role: 'user' | 'agent'; text: string; formulaBox?: string };
-
-export type TutorConfig = {
-  initialMessages: ChatMessage[];
-  suggestedQuestions: string[];
-};
-
-export const TUTOR_CONFIG: TutorConfig = {
-  initialMessages: [],
-  suggestedQuestions: [
-    'Como o ENEM cobra funções do 2º grau?',
-    'Explica a proposta de intervenção (C5)',
-    'Diferença entre Marx, Weber e Durkheim',
-    'Como resolver questões de genética?',
-  ],
-};
 
 // ─── Acompanhamento ───────────────────────────────────────────────────────────
 

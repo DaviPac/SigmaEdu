@@ -9,9 +9,7 @@ import {
   Play,
   PenLine,
   Activity,
-  MessageSquare,
   CheckSquare2,
-  GraduationCap,
   Trophy,
   Star,
   Glasses,
@@ -28,9 +26,7 @@ const STUDY_ITEMS: SidebarItem[] = [
 
 const AGENT_ITEMS: SidebarItem[] = [
   { icon: Activity, label: 'Diagnóstico', href: '/ava/diagnostico' },
-  { icon: MessageSquare, label: 'Tutor', href: '/ava/tutor' },
   { icon: CheckSquare2, label: 'Avaliador', href: '/ava/avaliador' },
-  { icon: GraduationCap, label: 'Pedagógico', href: '/ava/pedagogico' },
   { icon: Glasses, label: 'Acompanhamento', href: '/ava/acompanhamento' },
 ];
 

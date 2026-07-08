@@ -1,5 +1,5 @@
-import TutorScreen from '@/components/ava/screens/tutor';
+import { redirect } from 'next/navigation';
 
 export default function TutorPage() {
-  return <TutorScreen />;
+  redirect('/ava/acompanhamento');
 }
