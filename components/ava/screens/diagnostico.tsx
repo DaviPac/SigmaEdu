@@ -90,14 +90,6 @@ export default function DiagnosticoScreen() {
           ))}
         </div>
       </Card>
-
-      <button
-        onClick={() => router.push('/ava/mapa')}
-        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm text-white rounded-md font-medium hover:opacity-90 transition-opacity"
-        style={{ background: '#1D9E75' }}
-      >
-        ✓ Gerar mapa de proficiência (+{agent.xpReward} XP)
-      </button>
     </>
   );
 }

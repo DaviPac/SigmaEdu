@@ -1,5 +1,5 @@
-import PedagogicoScreen from '@/components/ava/screens/pedagogico';
+import { redirect } from 'next/navigation';
 
 export default function PedagogicoPage() {
-  return <PedagogicoScreen />;
+  redirect('/ava/avaliador');
 }
