@@ -133,6 +133,14 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Trava scroll do documento inteiro nas páginas do shell AVA.
+   Fora do @layer base para ter especificidade maior que a regra acima. */
+html.ava-shell-page,
+html.ava-shell-page body {
+  overflow: hidden !important;
+  height: 100%;
+}
 /* ProseMirror Editor Styles */
 .prosemirror-editor {
   cursor: text;

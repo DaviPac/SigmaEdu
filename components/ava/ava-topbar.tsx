@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Sun, Moon, LogOut } from 'lucide-react';
+import { Sun, Moon, LogOut, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MOCK_STUDENT } from '@/lib/mock/ava-data';
 import { useTheme } from '@/lib/hooks/use-theme';
 import { useAvaAuth } from './ava-auth-context';
+import { useAvaLayout } from './ava-shell';
 
 const TABS = [
   {
@@ -27,21 +28,30 @@ export default function AvaTopbar() {
   const { resolvedTheme, setTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
   const { user, logout } = useAvaAuth();
+  const { toggleGlobalSidebar } = useAvaLayout();
 
   const displayName = user?.username ?? MOCK_STUDENT.name;
   const initials = displayName.slice(0, 2).toUpperCase();
 
   return (
     <header className="h-12 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-4 flex-shrink-0">
-      {/* Brand */}
-      <div className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-gray-100">
-        <div
-          className="w-[26px] h-[26px] rounded-[7px] flex items-center justify-center text-xs font-medium"
-          style={{ background: '#1D9E75', color: '#E1F5EE' }}
+      {/* Brand & Menu */}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={toggleGlobalSidebar}
+          className="p-1.5 -ml-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors"
+          title="Alternar Menu"
         >
-          S
+          <Menu className="w-4 h-4" />
+        </button>
+        <div className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-gray-100">
+          <img
+            src="/logo.png"
+            alt="SigmaEdu Logo"
+            className="w-[26px] h-[26px] object-contain"
+          />
+          SigmaEdu
         </div>
-        SigmaEdu
       </div>
 
       {/* Nav tabs */}

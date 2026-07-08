@@ -46,7 +46,7 @@ function Item({ icon: Icon, label, href, active }: SidebarItem & { active: boole
       className={cn(
         'flex items-center gap-2 px-3.5 py-[7px] text-xs border-l-2 transition-all',
         active
-          ? 'font-medium border-l-[#1D9E75] bg-[#E1F5EE] dark:bg-[rgba(29,158,117,0.12)] text-[#0F6E56]'
+          ? 'font-medium border-l-[#7E22CE] bg-[#F4EBFF] dark:bg-[rgba(126,34,206,0.12)] text-[#7E22CE]'
           : 'border-l-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100',
       )}
     >
