@@ -22,11 +22,11 @@ function LateXMath({ formula, displayMode = false }: { formula: string; displayM
   } catch (error) {
     errorMsg = String(error);
   }
-  
+
   if (errorMsg) {
     return <code className="font-mono text-red-500">{formula}</code>;
   }
-  
+
   return <span dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
@@ -279,9 +279,15 @@ function groupElements(elements: React.ReactNode[], bulletColor: string): React.
         el.type === 'h5' ||
         el.type === 'h6' ||
         (el.type === 'div' &&
-          ((el as React.ReactElement<{ className?: string }>).props.className?.includes('text-[16px]') ||
-            (el as React.ReactElement<{ className?: string }>).props.className?.includes('text-[17px]') ||
-            (el as React.ReactElement<{ className?: string }>).props.className?.includes('text-[18px]'))));
+          ((el as React.ReactElement<{ className?: string }>).props.className?.includes(
+            'text-[16px]',
+          ) ||
+            (el as React.ReactElement<{ className?: string }>).props.className?.includes(
+              'text-[17px]',
+            ) ||
+            (el as React.ReactElement<{ className?: string }>).props.className?.includes(
+              'text-[18px]',
+            ))));
 
     if (isHeading) {
       if (currentGroup) {

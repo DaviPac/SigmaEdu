@@ -2,7 +2,20 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { Check, ChevronLeft, ChevronRight, ChevronDown, Trophy, Clock, Loader2, MessageCircle, X, Send, Minus, Plus } from 'lucide-react';
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  Trophy,
+  Clock,
+  Loader2,
+  MessageCircle,
+  X,
+  Send,
+  Minus,
+  Plus,
+} from 'lucide-react';
 import type { ActivitySet, ActivityQuestion } from '@/lib/mock/ava-data';
 import { MiniMarkdown } from '@/components/ava/mini-markdown';
 
@@ -39,9 +52,7 @@ type EnemArea = 'LC' | 'CN' | 'CH' | 'MT';
 type SubareaInfo = { name: string; count: number };
 type AreaGroup = { area: EnemArea; total: number; subareas: SubareaInfo[] };
 
-type ConfigTarget =
-  | { kind: 'simulado'; areas: AreaGroup[] }
-  | { kind: 'area'; group: AreaGroup };
+type ConfigTarget = { kind: 'simulado'; areas: AreaGroup[] } | { kind: 'area'; group: AreaGroup };
 
 type QuizConfig =
   | { kind: 'simulado'; perArea: Partial<Record<EnemArea, number>> }
@@ -70,7 +81,9 @@ const XP_PER_QUESTION = 15;
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatTime(secs: number) {
-  const m = Math.floor(secs / 60).toString().padStart(2, '0');
+  const m = Math.floor(secs / 60)
+    .toString()
+    .padStart(2, '0');
   const s = (secs % 60).toString().padStart(2, '0');
   return `${m}:${s}`;
 }
@@ -140,7 +153,9 @@ function shuffleArray<T>(arr: T[]): T[] {
 
 async function fetchSet(config: QuizConfig): Promise<ActivitySet> {
   if (config.kind === 'simulado') {
-    const entries = (Object.entries(config.perArea) as [EnemArea, number][]).filter(([, n]) => n > 0);
+    const entries = (Object.entries(config.perArea) as [EnemArea, number][]).filter(
+      ([, n]) => n > 0,
+    );
     const results = await Promise.all(
       entries.map(([area, limit]) =>
         fetch(`/api/ava/questoes?area=${area}&limit=${limit}`).then(
@@ -453,10 +468,7 @@ function ConfigScreen({
                   className="flex items-center gap-1.5 text-[11px] text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors mb-2"
                 >
                   <ChevronDown
-                    className={cn(
-                      'w-3.5 h-3.5 transition-transform',
-                      showSubareas && 'rotate-180',
-                    )}
+                    className={cn('w-3.5 h-3.5 transition-transform', showSubareas && 'rotate-180')}
                   />
                   {showSubareas ? 'Ocultar subtemas' : 'Personalizar por subtema'}
                 </button>
@@ -539,7 +551,7 @@ function ResultsScreen({
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ resultados }),
     }).catch(() => {});
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const correct = set.questions.filter((q) => answers[q.id] === q.correctKey).length;
@@ -726,9 +738,7 @@ function FloatingChat({ question }: { question: ActivityQuestion }) {
           style={{ width: 320, maxHeight: 440 }}
         >
           {/* Cabeçalho */}
-          <div
-            className="flex items-center gap-2 px-3 py-2.5 border-b border-gray-100 dark:border-gray-800"
-          >
+          <div className="flex items-center gap-2 px-3 py-2.5 border-b border-gray-100 dark:border-gray-800">
             <div
               className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
               style={{ background: '#E1F5EE' }}
@@ -756,7 +766,9 @@ function FloatingChat({ question }: { question: ActivityQuestion }) {
                   Tire dúvidas ou peça uma dica sobre a questão atual.
                 </p>
                 <button
-                  onClick={() => send('Me dê uma dica para resolver essa questão sem revelar a resposta.')}
+                  onClick={() =>
+                    send('Me dê uma dica para resolver essa questão sem revelar a resposta.')
+                  }
                   className="px-3 py-1.5 rounded-full text-[11px] font-medium border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
                   💡 Pedir dica
@@ -765,7 +777,10 @@ function FloatingChat({ question }: { question: ActivityQuestion }) {
             )}
 
             {messages.map((m, i) => (
-              <div key={i} className={cn('flex', m.role === 'user' ? 'justify-end' : 'justify-start')}>
+              <div
+                key={i}
+                className={cn('flex', m.role === 'user' ? 'justify-end' : 'justify-start')}
+              >
                 {m.role === 'user' ? (
                   <div
                     className="max-w-[85%] px-3 py-2 rounded-2xl rounded-tr-sm text-[12px] text-white leading-relaxed"
@@ -884,7 +899,9 @@ function QuizScreen({ set, onBack }: { set: ActivitySet; onBack: () => void }) {
             {formatTime(elapsed)}
           </div>
         ) : (
-          <p className="text-[11px] text-gray-400">{idx + 1}/{total}</p>
+          <p className="text-[11px] text-gray-400">
+            {idx + 1}/{total}
+          </p>
         )}
       </div>
 
@@ -920,7 +937,12 @@ function QuizScreen({ set, onBack }: { set: ActivitySet; onBack: () => void }) {
               </p>
             )}
             {question.contextImages?.map((b64, i) => (
-              <img key={i} src={`data:image/png;base64,${b64}`} alt="" className="max-w-full mt-2 rounded" />
+              <img
+                key={i}
+                src={`data:image/png;base64,${b64}`}
+                alt=""
+                className="max-w-full mt-2 rounded"
+              />
             ))}
           </div>
         )}
@@ -1052,9 +1074,7 @@ export default function AtividadeScreen() {
   if (screen === 'config' && configTarget) {
     return (
       <>
-        {fetchError && (
-          <p className="text-[11px] text-red-500 mb-2 text-center">{fetchError}</p>
-        )}
+        {fetchError && <p className="text-[11px] text-red-500 mb-2 text-center">{fetchError}</p>}
         <ConfigScreen target={configTarget} onBack={handleBack} onStart={handleStart} />
       </>
     );

@@ -137,7 +137,9 @@ function AreaCard({ area, data }: { area: { area: string; label: string }; data?
                   <span style={{ color: perfColor(s.percentual) }} className="font-medium">
                     {s.percentual.toFixed(0)}%
                   </span>
-                  <span className="text-gray-400 ml-1">({s.corretas}/{s.total})</span>
+                  <span className="text-gray-400 ml-1">
+                    ({s.corretas}/{s.total})
+                  </span>
                 </span>
               </div>
               <PerfBar pct={s.percentual} bg="#f3f4f6" />

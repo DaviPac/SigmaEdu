@@ -29,7 +29,12 @@ export default function AvaShell({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AvaLayoutContext.Provider value={{ isGlobalSidebarOpen, toggleGlobalSidebar: () => setIsGlobalSidebarOpen((prev) => !prev) }}>
+    <AvaLayoutContext.Provider
+      value={{
+        isGlobalSidebarOpen,
+        toggleGlobalSidebar: () => setIsGlobalSidebarOpen((prev) => !prev),
+      }}
+    >
       <div className="h-screen flex flex-col overflow-hidden bg-gray-100 dark:bg-gray-950">
         <AvaTopbar />
         <div className="flex flex-1 overflow-hidden min-h-0 relative">
@@ -42,7 +47,9 @@ export default function AvaShell({ children }: { children: React.ReactNode }) {
               <AvaSidebar />
             </div>
           </div>
-          <main className="flex-1 overflow-y-auto p-4 min-h-0 bg-gray-100 dark:bg-gray-950">{children}</main>
+          <main className="flex-1 overflow-y-auto p-4 min-h-0 bg-gray-100 dark:bg-gray-950">
+            {children}
+          </main>
         </div>
       </div>
     </AvaLayoutContext.Provider>

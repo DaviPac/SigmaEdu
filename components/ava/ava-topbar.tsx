@@ -45,11 +45,7 @@ export default function AvaTopbar() {
           <Menu className="w-4 h-4" />
         </button>
         <div className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-gray-100">
-          <img
-            src="/logo.png"
-            alt="SigmaEdu Logo"
-            className="w-[26px] h-[26px] object-contain"
-          />
+          <img src="/logo.png" alt="SigmaEdu Logo" className="w-[26px] h-[26px] object-contain" />
           SigmaEdu
         </div>
       </div>
