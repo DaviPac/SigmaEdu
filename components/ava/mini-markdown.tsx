@@ -329,7 +329,7 @@ function parseHTMLToReact(html: string, bulletColor: string): React.ReactNode {
 }
 
 /** Renderiza formatação markdown em blocos com design premium e suporte a blockquotes. */
-export default function MiniMarkdown({ text, bulletColor = '#7E22CE' }: MiniMarkdownProps) {
+export function MiniMarkdown({ text, bulletColor = '#7E22CE' }: MiniMarkdownProps) {
   const trimmed = text.trim();
 
   // Se for uma estrutura HTML, realiza o parsing via DOMParser para renderizar InlineMarkdown nos nós de texto
@@ -591,3 +591,4 @@ export default function MiniMarkdown({ text, bulletColor = '#7E22CE' }: MiniMark
     </div>
   );
 }
+export default MiniMarkdown;

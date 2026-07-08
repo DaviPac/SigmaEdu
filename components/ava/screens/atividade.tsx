@@ -775,7 +775,7 @@ function FloatingChat({ question }: { question: ActivityQuestion }) {
                   </div>
                 ) : (
                   <div className="text-[12px] text-gray-800 dark:text-gray-200 leading-relaxed">
-                    <MiniMarkdown text={m.text} accentColor="#1D9E75" />
+                    <MiniMarkdown text={m.text} bulletColor="#1D9E75" />
                   </div>
                 )}
               </div>
