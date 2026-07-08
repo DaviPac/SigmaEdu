@@ -119,8 +119,151 @@ interface BlockGroup {
   contentBlocks: Block[];
 }
 
+/** Converte a árvore de nós do DOM nativo do navegador para elementos React com InlineMarkdown. */
+function domToReact(node: Node, bulletColor: string): React.ReactNode {
+  if (node.nodeType === Node.TEXT_NODE) {
+    const text = node.nodeValue || '';
+    if (text.trim() === '') return text;
+
+    const hasMarkdownBlocks =
+      text.includes('---') ||
+      text.includes('***') ||
+      /(?:^|\n)#+\s/.test(text) ||
+      /(?:^|\n)>\s/.test(text) ||
+      /(?:^|\n)\s*[-*•]\s/.test(text) ||
+      /(?:^|\n)\s*\d+\.\s/.test(text);
+
+    if (hasMarkdownBlocks) {
+      return <MiniMarkdown key={Math.random()} text={text} bulletColor={bulletColor} />;
+    } else {
+      return <InlineMarkdown key={Math.random()} text={text} />;
+    }
+  }
+
+  if (node.nodeType === Node.ELEMENT_NODE) {
+    const element = node as Element;
+    const tagName = element.tagName.toLowerCase();
+    const children = Array.from(element.childNodes).map((child) => domToReact(child, bulletColor));
+
+    const className = element.getAttribute('class') || undefined;
+    const styleAttr = element.getAttribute('style') || undefined;
+
+    let style: React.CSSProperties | undefined = undefined;
+    if (styleAttr) {
+      style = {};
+      styleAttr.split(';').forEach((pair) => {
+        const [k, v] = pair.split(':');
+        if (k && v) {
+          const camelKey = k.trim().replace(/-./g, (x) => x[1].toUpperCase());
+          (style as any)[camelKey] = v.trim();
+        }
+      });
+    }
+
+    const key = Math.random();
+
+    switch (tagName) {
+      case 'div':
+        return (
+          <div key={key} className={className} style={style}>
+            {children}
+          </div>
+        );
+      case 'span':
+        return (
+          <span key={key} className={className} style={style}>
+            {children}
+          </span>
+        );
+      case 'p':
+        return (
+          <p key={key} className={className} style={style}>
+            {children}
+          </p>
+        );
+      case 'h3':
+        return (
+          <h3 key={key} className={className} style={style}>
+            {children}
+          </h3>
+        );
+      case 'h4':
+        return (
+          <h4 key={key} className={className} style={style}>
+            {children}
+          </h4>
+        );
+      case 'ul':
+        return (
+          <ul key={key} className={className} style={style}>
+            {children}
+          </ul>
+        );
+      case 'ol':
+        return (
+          <ol key={key} className={className} style={style}>
+            {children}
+          </ol>
+        );
+      case 'li':
+        return (
+          <li key={key} className={className} style={style}>
+            {children}
+          </li>
+        );
+      case 'blockquote':
+        return (
+          <blockquote key={key} className={className} style={style}>
+            {children}
+          </blockquote>
+        );
+      case 'hr':
+        return <hr key={key} className={className} style={style} />;
+      case 'code':
+        return (
+          <code key={key} className={className} style={style}>
+            {children}
+          </code>
+        );
+      case 'strong':
+        return (
+          <strong key={key} className={className} style={style}>
+            {children}
+          </strong>
+        );
+      case 'em':
+        return (
+          <em key={key} className={className} style={style}>
+            {children}
+          </em>
+        );
+      default:
+        return <span key={key}>{children}</span>;
+    }
+  }
+
+  return null;
+}
+
+/** Faz o parsing seguro do HTML usando DOMParser no cliente e retorna elementos React. */
+function parseHTMLToReact(html: string, bulletColor: string): React.ReactNode {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  return Array.from(doc.body.childNodes).map((child) => domToReact(child, bulletColor));
+}
+
 /** Renderiza formatação markdown em blocos com design premium e suporte a blockquotes. */
 export default function MiniMarkdown({ text, bulletColor = '#7E22CE' }: MiniMarkdownProps) {
+  const trimmed = text.trim();
+
+  // Se for uma estrutura HTML, realiza o parsing via DOMParser para renderizar InlineMarkdown nos nós de texto
+  if (trimmed.startsWith('<div')) {
+    return <>{parseHTMLToReact(trimmed, bulletColor)}</>;
+  }
+
   const normalizedText = text.replace(/\r\n/g, '\n');
   const rawLines = normalizedText.split('\n');
 
@@ -128,10 +271,10 @@ export default function MiniMarkdown({ text, bulletColor = '#7E22CE' }: MiniMark
   let currentBlock: Block | null = null;
 
   for (const line of rawLines) {
-    const trimmed = line.trim();
+    const trimmedLine = line.trim();
 
     // 1. Horizontal Rule
-    if (trimmed === '---' || trimmed === '***' || trimmed === '___') {
+    if (trimmedLine === '---' || trimmedLine === '***' || trimmedLine === '___') {
       if (currentBlock) {
         blocks.push(currentBlock);
         currentBlock = null;
@@ -141,8 +284,8 @@ export default function MiniMarkdown({ text, bulletColor = '#7E22CE' }: MiniMark
     }
 
     // 2. Heading
-    if (trimmed.startsWith('#')) {
-      const match = trimmed.match(/^(#{1,6})\s+(.*)$/);
+    if (trimmedLine.startsWith('#')) {
+      const match = trimmedLine.match(/^(#{1,6})\s+(.*)$/);
       if (match) {
         if (currentBlock) {
           blocks.push(currentBlock);
@@ -158,7 +301,7 @@ export default function MiniMarkdown({ text, bulletColor = '#7E22CE' }: MiniMark
     }
 
     // 3. Blockquote
-    if (line.startsWith('>') || trimmed.startsWith('>')) {
+    if (line.startsWith('>') || trimmedLine.startsWith('>')) {
       const content = line.replace(/^\s*>\s?/, '');
       if (currentBlock && currentBlock.type === 'blockquote') {
         currentBlock.lines.push(content);
@@ -200,7 +343,7 @@ export default function MiniMarkdown({ text, bulletColor = '#7E22CE' }: MiniMark
     }
 
     // 6. Empty Line
-    if (trimmed === '') {
+    if (trimmedLine === '') {
       if (currentBlock) {
         blocks.push(currentBlock);
         currentBlock = null;

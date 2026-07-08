@@ -271,26 +271,7 @@ export default function AcompanhamentoScreen() {
               <p className="text-[10px] text-gray-400 dark:text-gray-500 mb-1.5 flex items-center gap-1">
                 <Glasses className="w-3 h-3" /> Acompanhamento · modo ENEM
               </p>
-              {(() => {
-                const trimmed = msg.text.trim();
-                if (trimmed.startsWith('<div')) {
-                  const lastDivIndex = trimmed.lastIndexOf('</div>');
-                  if (lastDivIndex !== -1) {
-                    const htmlPart = trimmed.substring(0, lastDivIndex + 6);
-                    const markdownPart = trimmed.substring(lastDivIndex + 6);
-                    return (
-                      <div className="space-y-4">
-                        <div dangerouslySetInnerHTML={{ __html: htmlPart }} />
-                        {markdownPart.trim() && (
-                          <MiniMarkdown text={markdownPart} bulletColor={agent.color} />
-                        )}
-                      </div>
-                    );
-                  }
-                  return <div dangerouslySetInnerHTML={{ __html: msg.text }} />;
-                }
-                return <MiniMarkdown text={msg.text} bulletColor={agent.color} />;
-              })()}
+              <MiniMarkdown text={msg.text} bulletColor={agent.color} />
             </div>
           ),
         )}
