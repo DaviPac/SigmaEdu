@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
 
 /** Props para o componente MiniMarkdown. */
 interface MiniMarkdownProps {
@@ -8,9 +10,31 @@ interface MiniMarkdownProps {
   bulletColor?: string;
 }
 
+/** Renderiza fórmula matemática usando KaTeX de forma segura. */
+function LateXMath({ formula, displayMode = false }: { formula: string; displayMode?: boolean }) {
+  try {
+    const html = katex.renderToString(formula, {
+      displayMode,
+      throwOnError: false,
+    });
+    return <span dangerouslySetInnerHTML={{ __html: html }} />;
+  } catch (error) {
+    return <code className="font-mono text-red-500">{formula}</code>;
+  }
+}
+
 /** Renderiza formatação inline como negrito, itálico e códigos/fórmulas com destaque. */
 export function InlineMarkdown({ text }: { text: string }) {
-  const tokens = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g);
+  // Regex splitting:
+  // 1. Bold: **text**
+  // 2. Italic: *text*
+  // 3. Inline code: `text`
+  // 4. LaTeX block math: $$formula$$ or \[formula\]
+  // 5. LaTeX inline math: $formula$ or \(formula\)
+  const tokens = text.split(
+    /(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|\$\$.+?\$\$|\$.+?\$|\\\[.+?\\\]|\\\(.+?\\\))/g,
+  );
+
   return (
     <>
       {tokens.map((tok, i) => {
@@ -43,10 +67,49 @@ export function InlineMarkdown({ text }: { text: string }) {
             </code>
           );
         }
+
+        // LaTeX Block Math: $$...$$ or \[...\]
+        if (
+          (tok.startsWith('$$') && tok.endsWith('$$')) ||
+          (tok.startsWith('\\[') && tok.endsWith('\\]'))
+        ) {
+          const content = tok.startsWith('$$') ? tok.slice(2, -2) : tok.slice(2, -2);
+          return (
+            <div
+              key={i}
+              className="my-3 p-3 bg-purple-50/20 dark:bg-purple-950/10 border border-purple-100 dark:border-purple-800/40 rounded-lg text-center overflow-x-auto shadow-sm"
+            >
+              <LateXMath formula={content} displayMode={true} />
+            </div>
+          );
+        }
+
+        // LaTeX Inline Math: $...$ or \(...\)
+        if (
+          (tok.startsWith('$') && tok.endsWith('$') && tok.length > 2) ||
+          (tok.startsWith('\\(') && tok.endsWith('\\)'))
+        ) {
+          const content = tok.startsWith('$') ? tok.slice(1, -1) : tok.slice(2, -2);
+          return (
+            <span
+              key={i}
+              className="mx-0.5 px-1.5 py-0.5 rounded bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-100 dark:border-purple-800/60 inline-flex items-center shadow-sm"
+            >
+              <LateXMath formula={content} displayMode={false} />
+            </span>
+          );
+        }
+
         return <span key={i}>{tok}</span>;
       })}
     </>
   );
+}
+
+/** Estrutura que agrupa blocos de texto sob um cabeçalho. */
+interface MarkdownGroup {
+  headerBlock: string | null;
+  blocks: string[];
 }
 
 /** Renderiza formatação markdown em blocos com design premium e suporte a blockquotes. */
@@ -54,125 +117,167 @@ export default function MiniMarkdown({ text, bulletColor = '#7E22CE' }: MiniMark
   const normalizedText = text.replace(/\r\n/g, '\n');
   const rawBlocks = normalizedText.split(/\n{2,}/);
 
-  return (
-    <div className="space-y-3.5 text-gray-700 dark:text-gray-300">
-      {rawBlocks.map((block, bi) => {
-        const trimmedBlock = block.trim();
-        if (!trimmedBlock) return null;
+  // Agrupa blocos sob seus cabeçalhos (###) correspondentes para indentação visual
+  const groups: MarkdownGroup[] = [];
+  let currentGroup: MarkdownGroup = { headerBlock: null, blocks: [] };
 
-        // 1. Headers: ###
-        if (trimmedBlock.startsWith('#')) {
-          const match = trimmedBlock.match(/^(#{1,6})\s+(.*)$/);
-          if (match) {
-            const level = match[1].length;
-            const content = match[2];
-            const sizeClass =
-              level === 1
-                ? 'text-[15px] font-bold'
-                : level === 2
-                  ? 'text-[14px] font-bold'
-                  : 'text-[13px] font-semibold';
-            return (
-              <div
-                key={bi}
-                className={`${sizeClass} text-violet-900 dark:text-violet-300 border-b border-violet-100 dark:border-violet-850 pb-1 mt-4`}
-              >
-                <InlineMarkdown text={content} />
-              </div>
-            );
-          }
-        }
+  for (const block of rawBlocks) {
+    const trimmed = block.trim();
+    if (!trimmed) continue;
 
-        // 2. Blockquotes (Questões do ENEM e explicações importantes)
-        if (trimmedBlock.startsWith('>')) {
-          const lines = trimmedBlock.split('\n');
-          const paragraphTexts: string[] = [];
-          let currentParagraph = '';
+    if (trimmed.startsWith('#')) {
+      if (currentGroup.headerBlock || currentGroup.blocks.length > 0) {
+        groups.push(currentGroup);
+      }
+      currentGroup = { headerBlock: block, blocks: [] };
+    } else {
+      currentGroup.blocks.push(block);
+    }
+  }
+  if (currentGroup.headerBlock || currentGroup.blocks.length > 0) {
+    groups.push(currentGroup);
+  }
 
-          for (const line of lines) {
-            const cleanLine = line.replace(/^>\s?/, '');
-            if (cleanLine.trim() === '') {
-              if (currentParagraph) {
-                paragraphTexts.push(currentParagraph.trim());
-                currentParagraph = '';
-              }
-            } else {
-              currentParagraph += (currentParagraph ? ' ' : '') + cleanLine.trim();
-            }
-          }
+  /** Renderiza um bloco individual. */
+  const renderBlock = (block: string, key: string | number) => {
+    const trimmedBlock = block.trim();
+    if (!trimmedBlock) return null;
+
+    // 1. Headers: ###
+    if (trimmedBlock.startsWith('#')) {
+      const match = trimmedBlock.match(/^(#{1,6})\s+(.*)$/);
+      if (match) {
+        const level = match[1].length;
+        const content = match[2];
+        const sizeClass =
+          level === 1
+            ? 'text-[15px] font-bold'
+            : level === 2
+              ? 'text-[14px] font-bold'
+              : 'text-[13px] font-semibold';
+        return (
+          <div
+            key={key}
+            className={`${sizeClass} text-violet-900 dark:text-violet-300 border-b border-violet-100 dark:border-violet-850 pb-1 mt-4`}
+          >
+            <InlineMarkdown text={content} />
+          </div>
+        );
+      }
+    }
+
+    // 2. Blockquotes (Questões do ENEM e explicações importantes)
+    if (trimmedBlock.startsWith('>')) {
+      const lines = trimmedBlock.split('\n');
+      const paragraphTexts: string[] = [];
+      let currentParagraph = '';
+
+      for (const line of lines) {
+        const cleanLine = line.replace(/^>\s?/, '');
+        if (cleanLine.trim() === '') {
           if (currentParagraph) {
             paragraphTexts.push(currentParagraph.trim());
+            currentParagraph = '';
           }
+        } else {
+          currentParagraph += (currentParagraph ? ' ' : '') + cleanLine.trim();
+        }
+      }
+      if (currentParagraph) {
+        paragraphTexts.push(currentParagraph.trim());
+      }
 
-          return (
-            <blockquote
-              key={bi}
-              className="border-l-4 border-violet-500 bg-violet-50/40 dark:bg-violet-950/15 p-4 rounded-r-lg my-3.5 space-y-2.5 text-gray-855 dark:text-gray-250 shadow-sm"
+      return (
+        <blockquote
+          key={key}
+          className="border-l-4 border-violet-500 bg-violet-50/40 dark:bg-violet-950/15 p-4 rounded-r-lg my-3.5 space-y-2.5 text-gray-855 dark:text-gray-250 shadow-sm"
+        >
+          {paragraphTexts.map((pText, pi) => (
+            <p key={pi} className="text-[12px] leading-relaxed break-words whitespace-pre-wrap">
+              <InlineMarkdown text={pText} />
+            </p>
+          ))}
+        </blockquote>
+      );
+    }
+
+    // 3. Unordered Lists
+    const lines = trimmedBlock.split('\n');
+    if (lines.every((l) => /^[-*•]\s/.test(l.trim()))) {
+      return (
+        <ul key={key} className="list-none space-y-2 pl-1.5 my-2">
+          {lines.map((l, li) => (
+            <li
+              key={li}
+              className="flex gap-2.5 items-start text-[12px] leading-relaxed text-gray-700 dark:text-gray-300"
             >
-              {paragraphTexts.map((pText, pi) => (
-                <p key={pi} className="text-[12px] leading-relaxed break-words whitespace-pre-wrap">
-                  <InlineMarkdown text={pText} />
-                </p>
-              ))}
-            </blockquote>
-          );
-        }
+              <span
+                className="mt-[5px] w-1.5 h-1.5 rounded-full flex-shrink-0"
+                style={{ background: bulletColor }}
+              />
+              <span className="flex-1">
+                <InlineMarkdown text={l.replace(/^[-*•]\s/, '').trim()} />
+              </span>
+            </li>
+          ))}
+        </ul>
+      );
+    }
 
-        // 3. Unordered Lists
-        const lines = trimmedBlock.split('\n');
-        if (lines.every((l) => /^[-*•]\s/.test(l.trim()))) {
-          return (
-            <ul key={bi} className="list-none space-y-2 pl-1.5 my-2">
-              {lines.map((l, li) => (
-                <li
-                  key={li}
-                  className="flex gap-2.5 items-start text-[12px] leading-relaxed text-gray-700 dark:text-gray-300"
-                >
-                  <span
-                    className="mt-[5px] w-1.5 h-1.5 rounded-full flex-shrink-0"
-                    style={{ background: bulletColor }}
-                  />
-                  <span className="flex-1">
-                    <InlineMarkdown text={l.replace(/^[-*•]\s/, '').trim()} />
-                  </span>
-                </li>
-              ))}
-            </ul>
-          );
-        }
+    // 4. Ordered Lists
+    if (lines.every((l) => /^\d+\.\s/.test(l.trim()))) {
+      return (
+        <ol key={key} className="space-y-2 pl-1.5 my-2">
+          {lines.map((l, li) => {
+            const cleanText = l.replace(/^\d+\.\s/, '').trim();
+            const number = l.match(/^(\d+)\./)?.[1] || (li + 1).toString();
+            return (
+              <li
+                key={li}
+                className="flex gap-2.5 items-start text-[12px] leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <span className="font-bold text-violet-750 dark:text-violet-400 text-[11px] mt-[1.5px] w-4 text-right">
+                  {number}.
+                </span>
+                <span className="flex-1">
+                  <InlineMarkdown text={cleanText} />
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+      );
+    }
 
-        // 4. Ordered Lists
-        if (lines.every((l) => /^\d+\.\s/.test(l.trim()))) {
-          return (
-            <ol key={bi} className="space-y-2 pl-1.5 my-2">
-              {lines.map((l, li) => {
-                const cleanText = l.replace(/^\d+\.\s/, '').trim();
-                const number = l.match(/^(\d+)\./)?.[1] || (li + 1).toString();
-                return (
-                  <li
-                    key={li}
-                    className="flex gap-2.5 items-start text-[12px] leading-relaxed text-gray-700 dark:text-gray-300"
-                  >
-                    <span className="font-bold text-violet-750 dark:text-violet-400 text-[11px] mt-[1.5px] w-4 text-right">
-                      {number}.
-                    </span>
-                    <span className="flex-1">
-                      <InlineMarkdown text={cleanText} />
-                    </span>
-                  </li>
-                );
-              })}
-            </ol>
-          );
-        }
+    // 5. Default Paragraph
+    return (
+      <p key={key} className="text-[12px] leading-relaxed text-gray-750 dark:text-gray-350">
+        <InlineMarkdown text={lines.join(' ')} />
+      </p>
+    );
+  };
 
-        // 5. Default Paragraph
-        return (
-          <p key={bi} className="text-[12px] leading-relaxed text-gray-750 dark:text-gray-350">
-            <InlineMarkdown text={lines.join(' ')} />
-          </p>
-        );
-      })}
+  return (
+    <div className="space-y-4 text-gray-700 dark:text-gray-300">
+      {groups.map((group, gi) => (
+        <div key={gi} className="space-y-3">
+          {/* Cabeçalho do tópico (Roxo / Alinhado totalmente à esquerda) */}
+          {group.headerBlock && renderBlock(group.headerBlock, gi)}
+
+          {/* Sub-tópicos/Conteúdo (Laranja / Com recuo e linha de guia vertical) */}
+          {group.blocks.length > 0 && (
+            <div
+              className={
+                group.headerBlock
+                  ? 'pl-4 sm:pl-5 border-l-2 border-purple-150 dark:border-purple-900/30 ml-2 space-y-3.5'
+                  : 'space-y-3.5'
+              }
+            >
+              {group.blocks.map((block, bi) => renderBlock(block, `${gi}-${bi}`))}
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 }
