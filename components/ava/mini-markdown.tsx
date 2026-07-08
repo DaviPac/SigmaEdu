@@ -106,49 +106,150 @@ export function InlineMarkdown({ text }: { text: string }) {
   );
 }
 
-/** Estrutura que agrupa blocos de texto sob um cabeçalho. */
-interface MarkdownGroup {
-  headerBlock: string | null;
-  blocks: string[];
+/** Definição de bloco de conteúdo Markdown. */
+interface Block {
+  type: 'paragraph' | 'heading' | 'blockquote' | 'ul' | 'ol' | 'hr';
+  lines: string[];
+  level?: number;
+}
+
+/** Estrutura de agrupamento sob cabeçalhos para indentação. */
+interface BlockGroup {
+  headerBlock: Block | null;
+  contentBlocks: Block[];
 }
 
 /** Renderiza formatação markdown em blocos com design premium e suporte a blockquotes. */
 export default function MiniMarkdown({ text, bulletColor = '#7E22CE' }: MiniMarkdownProps) {
   const normalizedText = text.replace(/\r\n/g, '\n');
-  const rawBlocks = normalizedText.split(/\n{2,}/);
+  const rawLines = normalizedText.split('\n');
 
-  // Agrupa blocos sob seus cabeçalhos (###) correspondentes para indentação visual
-  const groups: MarkdownGroup[] = [];
-  let currentGroup: MarkdownGroup = { headerBlock: null, blocks: [] };
+  const blocks: Block[] = [];
+  let currentBlock: Block | null = null;
 
-  for (const block of rawBlocks) {
-    const trimmed = block.trim();
-    if (!trimmed) continue;
+  for (const line of rawLines) {
+    const trimmed = line.trim();
 
-    if (trimmed.startsWith('#')) {
-      if (currentGroup.headerBlock || currentGroup.blocks.length > 0) {
-        groups.push(currentGroup);
+    // 1. Horizontal Rule
+    if (trimmed === '---' || trimmed === '***' || trimmed === '___') {
+      if (currentBlock) {
+        blocks.push(currentBlock);
+        currentBlock = null;
       }
-      currentGroup = { headerBlock: block, blocks: [] };
+      blocks.push({ type: 'hr', lines: [] });
+      continue;
+    }
+
+    // 2. Heading
+    if (trimmed.startsWith('#')) {
+      const match = trimmed.match(/^(#{1,6})\s+(.*)$/);
+      if (match) {
+        if (currentBlock) {
+          blocks.push(currentBlock);
+          currentBlock = null;
+        }
+        blocks.push({
+          type: 'heading',
+          level: match[1].length,
+          lines: [match[2]],
+        });
+        continue;
+      }
+    }
+
+    // 3. Blockquote
+    if (line.startsWith('>') || trimmed.startsWith('>')) {
+      const content = line.replace(/^\s*>\s?/, '');
+      if (currentBlock && currentBlock.type === 'blockquote') {
+        currentBlock.lines.push(content);
+      } else {
+        if (currentBlock) {
+          blocks.push(currentBlock);
+        }
+        currentBlock = { type: 'blockquote', lines: [content] };
+      }
+      continue;
+    }
+
+    // 4. Unordered List Item
+    if (/^\s*[-*•]\s/.test(line)) {
+      const content = line.replace(/^\s*[-*•]\s/, '');
+      if (currentBlock && currentBlock.type === 'ul') {
+        currentBlock.lines.push(content);
+      } else {
+        if (currentBlock) {
+          blocks.push(currentBlock);
+        }
+        currentBlock = { type: 'ul', lines: [content] };
+      }
+      continue;
+    }
+
+    // 5. Ordered List Item
+    if (/^\s*\d+\.\s/.test(line)) {
+      const content = line.replace(/^\s*\d+\.\s/, '');
+      if (currentBlock && currentBlock.type === 'ol') {
+        currentBlock.lines.push(content);
+      } else {
+        if (currentBlock) {
+          blocks.push(currentBlock);
+        }
+        currentBlock = { type: 'ol', lines: [content] };
+      }
+      continue;
+    }
+
+    // 6. Empty Line
+    if (trimmed === '') {
+      if (currentBlock) {
+        blocks.push(currentBlock);
+        currentBlock = null;
+      }
+      continue;
+    }
+
+    // 7. Regular Paragraph Text
+    if (currentBlock && currentBlock.type === 'paragraph') {
+      currentBlock.lines.push(line);
     } else {
-      currentGroup.blocks.push(block);
+      if (currentBlock) {
+        blocks.push(currentBlock);
+      }
+      currentBlock = { type: 'paragraph', lines: [line] };
     }
   }
-  if (currentGroup.headerBlock || currentGroup.blocks.length > 0) {
+
+  if (currentBlock) {
+    blocks.push(currentBlock);
+  }
+
+  // Agrupa os blocos sob seus cabeçalhos para aplicar o visual hierárquico
+  const groups: BlockGroup[] = [];
+  let currentGroup: BlockGroup = { headerBlock: null, contentBlocks: [] };
+
+  for (const block of blocks) {
+    if (block.type === 'heading') {
+      if (currentGroup.headerBlock || currentGroup.contentBlocks.length > 0) {
+        groups.push(currentGroup);
+      }
+      currentGroup = { headerBlock: block, contentBlocks: [] };
+    } else {
+      currentGroup.contentBlocks.push(block);
+    }
+  }
+  if (currentGroup.headerBlock || currentGroup.contentBlocks.length > 0) {
     groups.push(currentGroup);
   }
 
-  /** Renderiza um bloco individual. */
-  const renderBlock = (block: string, key: string | number) => {
-    const trimmedBlock = block.trim();
-    if (!trimmedBlock) return null;
+  /** Renderiza o conteúdo do bloco individualmente. */
+  const renderBlockContent = (block: Block, key: string | number) => {
+    switch (block.type) {
+      case 'hr':
+        return <hr key={key} className="my-5 border-t border-gray-200 dark:border-gray-800" />;
 
-    // 1. Headers: ###
-    if (trimmedBlock.startsWith('#')) {
-      const match = trimmedBlock.match(/^(#{1,6})\s+(.*)$/);
-      if (match) {
-        const level = match[1].length;
-        const content = match[2];
+      case 'heading': {
+        const content = block.lines[0];
+        const level = block.level || 3;
         const sizeClass =
           level === 1
             ? 'text-[15px] font-bold'
@@ -164,97 +265,87 @@ export default function MiniMarkdown({ text, bulletColor = '#7E22CE' }: MiniMark
           </div>
         );
       }
-    }
 
-    // 2. Blockquotes (Questões do ENEM e explicações importantes)
-    if (trimmedBlock.startsWith('>')) {
-      const lines = trimmedBlock.split('\n');
-      const paragraphTexts: string[] = [];
-      let currentParagraph = '';
-
-      for (const line of lines) {
-        const cleanLine = line.replace(/^>\s?/, '');
-        if (cleanLine.trim() === '') {
-          if (currentParagraph) {
-            paragraphTexts.push(currentParagraph.trim());
-            currentParagraph = '';
+      case 'blockquote': {
+        const paragraphs: string[] = [];
+        let currentParagraph = '';
+        for (const line of block.lines) {
+          if (line.trim() === '') {
+            if (currentParagraph) {
+              paragraphs.push(currentParagraph.trim());
+              currentParagraph = '';
+            }
+          } else {
+            currentParagraph += (currentParagraph ? ' ' : '') + line.trim();
           }
-        } else {
-          currentParagraph += (currentParagraph ? ' ' : '') + cleanLine.trim();
         }
+        if (currentParagraph) {
+          paragraphs.push(currentParagraph.trim());
+        }
+
+        return (
+          <blockquote
+            key={key}
+            className="border-l-4 border-violet-500 bg-violet-50/40 dark:bg-violet-950/15 p-4 rounded-r-lg my-3.5 space-y-2.5 text-gray-855 dark:text-gray-250 shadow-sm"
+          >
+            {paragraphs.map((pText, pi) => (
+              <p key={pi} className="text-[12px] leading-relaxed break-words whitespace-pre-wrap">
+                <InlineMarkdown text={pText} />
+              </p>
+            ))}
+          </blockquote>
+        );
       }
-      if (currentParagraph) {
-        paragraphTexts.push(currentParagraph.trim());
-      }
 
-      return (
-        <blockquote
-          key={key}
-          className="border-l-4 border-violet-500 bg-violet-50/40 dark:bg-violet-950/15 p-4 rounded-r-lg my-3.5 space-y-2.5 text-gray-855 dark:text-gray-250 shadow-sm"
-        >
-          {paragraphTexts.map((pText, pi) => (
-            <p key={pi} className="text-[12px] leading-relaxed break-words whitespace-pre-wrap">
-              <InlineMarkdown text={pText} />
-            </p>
-          ))}
-        </blockquote>
-      );
-    }
+      case 'ul':
+        return (
+          <ul key={key} className="list-none space-y-2 pl-1.5 my-2">
+            {block.lines.map((line, li) => (
+              <li
+                key={li}
+                className="flex gap-2.5 items-start text-[12px] leading-relaxed text-gray-700 dark:text-gray-300"
+              >
+                <span
+                  className="mt-[5px] w-1.5 h-1.5 rounded-full flex-shrink-0"
+                  style={{ background: bulletColor }}
+                />
+                <span className="flex-1">
+                  <InlineMarkdown text={line} />
+                </span>
+              </li>
+            ))}
+          </ul>
+        );
 
-    // 3. Unordered Lists
-    const lines = trimmedBlock.split('\n');
-    if (lines.every((l) => /^[-*•]\s/.test(l.trim()))) {
-      return (
-        <ul key={key} className="list-none space-y-2 pl-1.5 my-2">
-          {lines.map((l, li) => (
-            <li
-              key={li}
-              className="flex gap-2.5 items-start text-[12px] leading-relaxed text-gray-700 dark:text-gray-300"
-            >
-              <span
-                className="mt-[5px] w-1.5 h-1.5 rounded-full flex-shrink-0"
-                style={{ background: bulletColor }}
-              />
-              <span className="flex-1">
-                <InlineMarkdown text={l.replace(/^[-*•]\s/, '').trim()} />
-              </span>
-            </li>
-          ))}
-        </ul>
-      );
-    }
-
-    // 4. Ordered Lists
-    if (lines.every((l) => /^\d+\.\s/.test(l.trim()))) {
-      return (
-        <ol key={key} className="space-y-2 pl-1.5 my-2">
-          {lines.map((l, li) => {
-            const cleanText = l.replace(/^\d+\.\s/, '').trim();
-            const number = l.match(/^(\d+)\./)?.[1] || (li + 1).toString();
-            return (
+      case 'ol':
+        return (
+          <ol key={key} className="space-y-2 pl-1.5 my-2">
+            {block.lines.map((line, li) => (
               <li
                 key={li}
                 className="flex gap-2.5 items-start text-[12px] leading-relaxed text-gray-700 dark:text-gray-300"
               >
                 <span className="font-bold text-violet-750 dark:text-violet-400 text-[11px] mt-[1.5px] w-4 text-right">
-                  {number}.
+                  {li + 1}.
                 </span>
                 <span className="flex-1">
-                  <InlineMarkdown text={cleanText} />
+                  <InlineMarkdown text={line} />
                 </span>
               </li>
-            );
-          })}
-        </ol>
-      );
-    }
+            ))}
+          </ol>
+        );
 
-    // 5. Default Paragraph
-    return (
-      <p key={key} className="text-[12px] leading-relaxed text-gray-750 dark:text-gray-350">
-        <InlineMarkdown text={lines.join(' ')} />
-      </p>
-    );
+      case 'paragraph':
+        return (
+          <p key={key} className="text-[12px] leading-relaxed text-gray-750 dark:text-gray-350">
+            <InlineMarkdown text={block.lines.join(' ')} />
+          </p>
+        );
+
+      default:
+        return null;
+    }
   };
 
   return (
@@ -262,10 +353,10 @@ export default function MiniMarkdown({ text, bulletColor = '#7E22CE' }: MiniMark
       {groups.map((group, gi) => (
         <div key={gi} className="space-y-3">
           {/* Cabeçalho do tópico (Roxo / Alinhado totalmente à esquerda) */}
-          {group.headerBlock && renderBlock(group.headerBlock, gi)}
+          {group.headerBlock && renderBlockContent(group.headerBlock, gi)}
 
           {/* Sub-tópicos/Conteúdo (Laranja / Com recuo e linha de guia vertical) */}
-          {group.blocks.length > 0 && (
+          {group.contentBlocks.length > 0 && (
             <div
               className={
                 group.headerBlock
@@ -273,7 +364,7 @@ export default function MiniMarkdown({ text, bulletColor = '#7E22CE' }: MiniMark
                   : 'space-y-3.5'
               }
             >
-              {group.blocks.map((block, bi) => renderBlock(block, `${gi}-${bi}`))}
+              {group.contentBlocks.map((block, bi) => renderBlockContent(block, `${gi}-${bi}`))}
             </div>
           )}
         </div>
